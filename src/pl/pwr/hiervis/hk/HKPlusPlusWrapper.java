@@ -27,7 +27,7 @@ public class HKPlusPlusWrapper
 	private static final File hkOutDir = new File( hkBaseDir, "out" );
 	private static final File hkJarFile = new File( hkBaseDir, "hk.jar" );
 	private static final File hkInputFile = new File( hkBaseDir, "in.csv" );
-	private static final File hkOutputFile = new File( hkOutDir, "finalHierarchyOfGroups.csv.csv" );
+	private static final File hkOutputFile = new File( hkOutDir, "finalHierarchyOfGroups.csv" );
 
 	/**
 	 * Sent when the subprocess terminates by itself.
