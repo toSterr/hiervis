@@ -2,78 +2,118 @@ package pl.pwr.hiervis.hierarchy;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
+
+import basic_hierarchy.common.HierarchyBuilder;
+import basic_hierarchy.implementation.BasicHierarchy;
+import basic_hierarchy.implementation.BasicNode;
+import basic_hierarchy.interfaces.Hierarchy;
+import basic_hierarchy.interfaces.Node;
+import basic_hierarchy.test.TestCommon;
+import basic_hierarchy.test.implementation.HierarchyBuilderTest;
+import pl.pwr.hiervis.core.HVConfig;
 
 public class LoadedHierarchyTest {
 
-	@Test
-	public void testLoadedHierarchy() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testProcessHierarchy() {
-		fail("Not yet implemented");
+	Hierarchy h;
+	LoadedHierarchy loadedHierarchy;
+	LoadedHierarchy.Options o;
+	
+	public LoadedHierarchyTest() {
+		h= TestCommon.getFourGroupsHierarchy();
+		o = new LoadedHierarchy.Options(false, false, false, false, false);
+		loadedHierarchy = new LoadedHierarchy(h, o);
 	}
 
 	@Test
 	public void testIsProcessed() {
-		fail("Not yet implemented");
+		assertEquals(false, loadedHierarchy.isProcessed());
+		loadedHierarchy.processHierarchy(new HVConfig());
+		assertEquals(true, loadedHierarchy.isProcessed());
 	}
 
 	@Test
 	public void testGetMainHierarchy() {
-		fail("Not yet implemented");
+		assertEquals(h, loadedHierarchy.getMainHierarchy());
 	}
 
+	@Test(expected =IllegalArgumentException.class)
+	public void testGetNodeHierarchyThrowsErr() {
+		assertEquals(false, loadedHierarchy.getNodeHierarchy( new BasicNode("id", null, false), false));
+	}
+
+	
 	@Test
 	public void testGetNodeHierarchy() {
-		fail("Not yet implemented");
+		Node n = h.getRoot();
+		assertEquals(11, h.getOverallNumberOfInstances() );
+		assertEquals(2, loadedHierarchy.getNodeHierarchy(n, false).getOverallNumberOfInstances() );
 	}
 
 	@Test
 	public void testIsOwnerOf() {
-		fail("Not yet implemented");
+		assertEquals(true, loadedHierarchy.isOwnerOf(h));
+		assertEquals(false, loadedHierarchy.isOwnerOf(TestCommon.getFourGroupsHierarchy()));
 	}
 
 	@Test
 	public void testGetVisualizationStateForIntInt() {
-		fail("Not yet implemented");
+		VisualizationState state= loadedHierarchy.getVisualizationStateFor(100, 100);
+		assertEquals (-1, state.getResolutionWidth(), 0);
+		assertEquals (-1, state.getResolutionHeight(), 0);
 	}
 
 	@Test
 	public void testGetVisualizationStateForPairOfIntegerInteger() {
-		fail("Not yet implemented");
+		VisualizationState state= loadedHierarchy.getVisualizationStateFor( Pair.of( 100, 100 ));
+		assertEquals (-1, state.getResolutionWidth(), 0);
+		assertEquals (-1, state.getResolutionHeight(), 0);
 	}
 
 	@Test
 	public void testGetTree() {
-		fail("Not yet implemented");
+		assertEquals(null, loadedHierarchy.getTree());
+		loadedHierarchy.processHierarchy(new HVConfig());
+		assertNotEquals(null, loadedHierarchy.getTree());
 	}
 
 	@Test
 	public void testGetTreeLayoutData() {
-		fail("Not yet implemented");
+		assertEquals(null, loadedHierarchy.getTreeLayoutData());
+		loadedHierarchy.processHierarchy(new HVConfig());
+		assertNotEquals(null, loadedHierarchy.getTreeLayoutData());
 	}
 
 	@Test
 	public void testGetInstanceTable() {
-		fail("Not yet implemented");
+		assertEquals(null, loadedHierarchy.getInstanceTable());
+		loadedHierarchy.processHierarchy(new HVConfig());
+		assertNotEquals(null, loadedHierarchy.getInstanceTable());
 	}
 
 	@Test
 	public void testSetSelectedRow() {
-		fail("Not yet implemented");
+		assertEquals(0, loadedHierarchy.getSelectedRow());
+		loadedHierarchy.setSelectedRow(10);
+		assertEquals(10, loadedHierarchy.getSelectedRow());
 	}
 
 	@Test
 	public void testGetSelectedRow() {
-		fail("Not yet implemented");
+		assertEquals(0, loadedHierarchy.getSelectedRow());
 	}
 
 	@Test
 	public void testDispose() {
-		fail("Not yet implemented");
+		loadedHierarchy.processHierarchy(new HVConfig());
+		assertNotEquals(null, loadedHierarchy.getInstanceTable());
+		assertNotEquals(null, loadedHierarchy.getTree());
+		assertNotEquals(null, loadedHierarchy.getTreeLayoutData());
+		loadedHierarchy.dispose();
+		assertEquals(null, loadedHierarchy.getInstanceTable());
+		assertEquals(null, loadedHierarchy.getTree());
+		assertEquals(null, loadedHierarchy.getTreeLayoutData());
 	}
 
 }

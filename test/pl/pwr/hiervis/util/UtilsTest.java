@@ -123,25 +123,4 @@ public class UtilsTest {
 
 	}
 
-	//nie umiem
-	@Test
-	public void testStart() {
-		class test
-		{
-			public void main(String [] arg)
-			{
-				for (String iter:arg)
-				{
-					System.out.println(iter);
-				}
-			}
-		}
-		try {
-			Utils.start(test.class, "arg1 arg2");
-		} 
-		catch (IOException e) {
-		}
-		assertEquals("", outContent.toString());
-	}
-
 }

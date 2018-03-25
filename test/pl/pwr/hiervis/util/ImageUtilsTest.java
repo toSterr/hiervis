@@ -2,28 +2,53 @@ package pl.pwr.hiervis.util;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
 import org.junit.Test;
 
 public class ImageUtilsTest {
 
+	BufferedImage bimg;
+	
+	public ImageUtilsTest() {
+		bimg = new BufferedImage( 100, 50, BufferedImage.TYPE_INT_ARGB );
+	}
 	@Test
 	public void testRotate() {
-		fail("Not yet implemented");
+		BufferedImage newBuffimg= ImageUtils.rotate(bimg, 180);
+		assertEquals(100, newBuffimg.getWidth());
+		assertEquals(50, newBuffimg.getHeight());
+		newBuffimg= ImageUtils.rotate(bimg, 90);
+		assertEquals(50, newBuffimg.getWidth());
+		assertEquals(100, newBuffimg.getHeight());
 	}
 
 	@Test
 	public void testTrimImg() {
-		fail("Not yet implemented");
+		BufferedImage newBuffimg= ImageUtils.trimImg(bimg, Color.BLACK);
+		assertEquals(98, newBuffimg.getWidth());
+		assertEquals(50, newBuffimg.getHeight());
+		newBuffimg= ImageUtils.addBorder(bimg, 10, 10, 10, 10, Color.BLACK);
+		assertEquals(120, newBuffimg.getWidth());
+		assertEquals(70, newBuffimg.getHeight());
+		newBuffimg= ImageUtils.trimImg(bimg, Color.black);
+		assertEquals(98, newBuffimg.getWidth());
+		assertEquals(50, newBuffimg.getHeight());
 	}
 
 	@Test
 	public void testAddBorder() {
-		fail("Not yet implemented");
+		BufferedImage newBuffimg= ImageUtils.addBorder(bimg, 10, 10, 10, 10, Color.WHITE);
+		assertEquals(120, newBuffimg.getWidth());
+		assertEquals(70, newBuffimg.getHeight());
 	}
 
-	@Test
+	//zastepujemy t³o na czarno i jak wytniemy czarne pixele to rozmiar spada poni¿ej legalnego
+	@Test (expected = IllegalArgumentException.class)
 	public void testSetBackgroud() {
-		fail("Not yet implemented");
+		BufferedImage newBuffimg=ImageUtils.setBackgroud(bimg, Color.BLACK);
+		newBuffimg= ImageUtils.trimImg(newBuffimg, Color.BLACK);
 	}
 
 }

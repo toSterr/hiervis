@@ -2,293 +2,248 @@ package pl.pwr.hiervis.core;
 
 import static org.junit.Assert.*;
 
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Paths;
+
 import org.junit.Test;
 
 public class HVConfigTest {
 
-	@Test
-	public void testHVConfig() {
-		fail("Not yet implemented");
+	HVConfig hvConfig;
+	
+	public HVConfigTest() {
+		hvConfig= new HVConfig();
 	}
-
+	
+	@Test
+	public void testGet()
+	{
+		assertEquals(Color.red, hvConfig.getCurrentGroupColor());
+		assertEquals(Color.green, hvConfig.getChildGroupColor ());
+		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor() );
+		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor() );
+		assertEquals(Color.magenta, hvConfig.getHistogramColor() );
+		assertEquals(new Color( -1 ), hvConfig.getBackgroundColor() );
+		assertEquals(100, hvConfig.getNumberOfHistogramBins() );
+		assertEquals(3, hvConfig.getPointSize());
+		assertEquals(3, hvConfig.getDoubleFormatPrecision());
+		assertEquals(false, hvConfig.isMeasuresUseSubtree());
+		assertEquals("", hvConfig.getPreferredLookAndFeel());
+		assertEquals(false, hvConfig.isStopXfceLafChange());
+		assertEquals(2, hvConfig.getHkClusters());
+		assertEquals(10, hvConfig.getHkIterations());
+		assertEquals(10, hvConfig.getHkRepetitions());
+		assertEquals(2, hvConfig.getHkDendrogramHeight());
+		assertEquals(-1, hvConfig.getHkMaxNodes());
+		assertEquals(10, hvConfig.getHkEpsilon());
+		assertEquals(5, hvConfig.getHkLittleValue());
+		assertEquals(true, hvConfig.isHkWithTrueClass());
+		assertEquals(false, hvConfig.isHkWithInstanceNames());
+		assertEquals(true, hvConfig.isHkWithDiagonalMatrix());
+		assertEquals(false, hvConfig.isHkNoStaticCenter());
+		assertEquals(false, hvConfig.isHkGenerateImages());
+		assertEquals(Color.black, hvConfig.getParentGroupColor());
+	}
+	
 	@Test
 	public void testFromHVConfig() {
-		fail("Not yet implemented");
+		HVConfig o = HVConfig.from( hvConfig );
+		assertNotEquals(o, hvConfig);
 	}
 
 	@Test
-	public void testFromFile() {
-		fail("Not yet implemented");
+	public void testFromFile() throws IOException {
+		hvConfig= HVConfig.from( new File("out/newFileHVConfigLoadConf.txt") );
+		assertEquals(Color.red, hvConfig.getChildGroupColor());
 	}
 
+	//dlaczego nie robi kopi?
 	@Test
 	public void testCopy() {
-		fail("Not yet implemented");
+		hvConfig.setAncestorGroupColor(Color.black);
+		HVConfig o = hvConfig.copy();
+
+		assertNotEquals(o, hvConfig);
 	}
 
 	@Test
-	public void testTo() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetCurrentGroupColor() {
-		fail("Not yet implemented");
+	public void testTo() throws IOException {
+		Files.deleteIfExists( Paths.get("out/newFileHVConfig.txt") );
+		hvConfig.to( new File("out/newFileHVConfig.txt"));
+		assertEquals(true, new File("out/newFileHVConfig.txt").exists() );
 	}
 
 	@Test
 	public void testSetCurrentLevelColor() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetChildGroupColor() {
-		fail("Not yet implemented");
+		assertEquals(Color.red, hvConfig.getCurrentGroupColor());
+		hvConfig.setCurrentLevelColor(Color.black);
+		assertEquals(Color.black, hvConfig.getCurrentGroupColor());
 	}
 
 	@Test
 	public void testSetChildGroupColor() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetParentGroupColor() {
-		fail("Not yet implemented");
+		hvConfig.setChildGroupColor(Color.black);
+		assertEquals(Color.black, hvConfig.getChildGroupColor());
 	}
 
 	@Test
 	public void testSetParentGroupColor() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetOtherGroupColor() {
-		fail("Not yet implemented");
+		hvConfig.setParentGroupColor(Color.black);
+		assertEquals(Color.black, hvConfig.getParentGroupColor() );
 	}
 
 	@Test
 	public void testSetOtherGroupColor() {
-		fail("Not yet implemented");
+		hvConfig.setOtherGroupColor(Color.black);
+		assertEquals(Color.black, hvConfig.getOtherGroupColor()  );
 	}
 
-	@Test
-	public void testGetAncestorGroupColor() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	public void testSetAncestorGroupColor() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetBackgroundColor() {
-		fail("Not yet implemented");
+		hvConfig.setAncestorGroupColor(Color.black);
+		assertEquals(Color.black, hvConfig.getAncestorGroupColor()  );
 	}
 
 	@Test
 	public void testSetBackgroundColor() {
-		fail("Not yet implemented");
+		hvConfig.setBackgroundColor(Color.black);
+		assertEquals(Color.black, hvConfig.getBackgroundColor()  );
 	}
 
-	@Test
-	public void testGetHistogramColor() {
-		fail("Not yet implemented");
-	}
 
 	@Test
 	public void testSetHistogramColor() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetPointSize() {
-		fail("Not yet implemented");
+		hvConfig.setHistogramColor(Color.black);
+		assertEquals(Color.black, hvConfig.getHistogramColor()  );
 	}
 
 	@Test
 	public void testSetPointSize() {
-		fail("Not yet implemented");
+		hvConfig.setPointSize(150);
+		assertEquals(150 , hvConfig.getPointSize()  );
 	}
 
 	@Test
 	public void testSetNumberOfHistogramBins() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetNumberOfHistogramBins() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetDoubleFormatPrecision() {
-		fail("Not yet implemented");
+		hvConfig.setNumberOfHistogramBins(150);
+		assertEquals(150 , hvConfig.getNumberOfHistogramBins()  );
 	}
 
 	@Test
 	public void testSetDoubleFormatPrecision() {
-		fail("Not yet implemented");
+		hvConfig.setDoubleFormatPrecision(150);
+		assertEquals(150 , hvConfig.getDoubleFormatPrecision()  );
 	}
-
-	@Test
-	public void testIsMeasuresUseSubtree() {
-		fail("Not yet implemented");
-	}
-
+	
 	@Test
 	public void testSetMeasuresUseSubtree() {
-		fail("Not yet implemented");
+		hvConfig.setMeasuresUseSubtree(false);
+		assertEquals(true , hvConfig.isMeasuresUseSubtree()  );
 	}
 
 	@Test
 	public void testSetPreferredLookAndFeel() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetPreferredLookAndFeel() {
-		fail("Not yet implemented");
+		hvConfig.setPreferredLookAndFeel("look");
+		assertEquals("look" , hvConfig.getPreferredLookAndFeel()  );
 	}
 
 	@Test
 	public void testSetStopXfceLafChange() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsStopXfceLafChange() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkClusters() {
-		fail("Not yet implemented");
+		hvConfig.setStopXfceLafChange(false);
+		assertEquals(false , hvConfig.isStopXfceLafChange()  );
 	}
 
 	@Test
 	public void testSetHkClusters() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkIterations() {
-		fail("Not yet implemented");
+		hvConfig.setHkClusters(150);
+		assertEquals(150 , hvConfig.getHkClusters()  );
 	}
 
 	@Test
 	public void testSetHkIterations() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkRepetitions() {
-		fail("Not yet implemented");
+		hvConfig.setHkIterations(150);
+		assertEquals(150 , hvConfig.getHkIterations()  );
 	}
 
 	@Test
 	public void testSetHkRepetitions() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkDendrogramHeight() {
-		fail("Not yet implemented");
+		hvConfig.setHkRepetitions(150);
+		assertEquals(150 , hvConfig.getHkRepetitions()  );		
 	}
 
 	@Test
 	public void testSetHkDendrogramHeight() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkMaxNodes() {
-		fail("Not yet implemented");
+		hvConfig.setHkDendrogramHeight(150);
+		assertEquals(150 , hvConfig.getHkDendrogramHeight()  );
 	}
 
 	@Test
 	public void testSetHkMaxNodes() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkEpsilon() {
-		fail("Not yet implemented");
+	hvConfig.setHkMaxNodes(150);
+	assertEquals(150 , hvConfig.getHkMaxNodes()  );
 	}
 
 	@Test
 	public void testSetHkEpsilon() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testGetHkLittleValue() {
-		fail("Not yet implemented");
+		hvConfig.setHkEpsilon(150);
+		assertEquals(150 , hvConfig.getHkEpsilon()  );
 	}
 
 	@Test
 	public void testSetHkLittleValue() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHkWithTrueClass() {
-		fail("Not yet implemented");
+		hvConfig.setHkLittleValue(150);
+		assertEquals(150 , hvConfig.getHkLittleValue()  );
 	}
 
 	@Test
 	public void testSetHkWithTrueClass() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHkWithInstanceNames() {
-		fail("Not yet implemented");
+		hvConfig.setHkWithTrueClass(false);
+		assertEquals(false , hvConfig.isHkWithTrueClass()  );
 	}
 
 	@Test
 	public void testSetHkWithInstanceNames() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHkWithDiagonalMatrix() {
-		fail("Not yet implemented");
+		hvConfig.setHkWithInstanceNames(false);
+		assertEquals(false , hvConfig.isHkWithInstanceNames()  );
 	}
 
 	@Test
 	public void testSetHkWithDiagonalMatrix() {
-		fail("Not yet implemented");
+		hvConfig.setHkWithDiagonalMatrix(false);
+		assertEquals(false , hvConfig.isHkWithDiagonalMatrix()  );
 	}
-
-	@Test
-	public void testIsHkNoStaticCenter() {
-		fail("Not yet implemented");
-	}
-
 	@Test
 	public void testSetHkNoStaticCenter() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testIsHkGenerateImages() {
-		fail("Not yet implemented");
+		hvConfig.setHkNoStaticCenter(false);
+		assertEquals(false , hvConfig.isHkNoStaticCenter()  );
 	}
 
 	@Test
 	public void testSetHkGenerateImages() {
-		fail("Not yet implemented");
+		hvConfig.setHkGenerateImages(false);
+		assertEquals(false , hvConfig.isHkGenerateImages()  );
 	}
 
 	@Test
 	public void testEqualsObject() {
-		fail("Not yet implemented");
+		assertEquals(false, hvConfig.equals((Object)null));
+		assertEquals(false, hvConfig.equals( new double [] {} ));
+		Object o = new HVConfig();
+		assertEquals(true, hvConfig.equals( o ));
 	}
 
 	@Test
 	public void testEqualsHVConfig() {
-		fail("Not yet implemented");
+		HVConfig o = new HVConfig();
+		o.setAncestorGroupColor(Color.black);
+		assertEquals(false, hvConfig.equals( o ));
+		o = new HVConfig();
+		assertEquals(true, hvConfig.equals( o ));
 	}
 
 }
