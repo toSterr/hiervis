@@ -44,7 +44,6 @@ public class ImageUtilsTest {
 		assertEquals(70, newBuffimg.getHeight());
 	}
 
-	//zastepujemy t³o na czarno i jak wytniemy czarne pixele to rozmiar spada poni¿ej legalnego
 	@Test (expected = IllegalArgumentException.class)
 	public void testSetBackgroud() {
 		BufferedImage newBuffimg=ImageUtils.setBackgroud(bimg, Color.BLACK);

@@ -19,6 +19,7 @@ public class HVConfigTest {
 		hvConfig= new HVConfig();
 	}
 	
+	//osobne test casy
 	@Test
 	public void testGet()
 	{
