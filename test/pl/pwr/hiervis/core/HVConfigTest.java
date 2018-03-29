@@ -19,7 +19,6 @@ public class HVConfigTest {
 		hvConfig= new HVConfig();
 	}
 	
-	//osobne test casy
 	@Test
 	public void testGet()
 	{
@@ -62,7 +61,6 @@ public class HVConfigTest {
 		assertEquals(Color.red, hvConfig.getChildGroupColor());
 	}
 
-	//dlaczego nie robi kopi?
 	@Test
 	public void testCopy() {
 		hvConfig.setAncestorGroupColor(Color.black);
@@ -245,6 +243,160 @@ public class HVConfigTest {
 		assertEquals(false, hvConfig.equals( o ));
 		o = new HVConfig();
 		assertEquals(true, hvConfig.equals( o ));
+	}
+
+	@Test
+	public void testGetCurrentGroupColor() {
+		assertEquals(Color.red, hvConfig.getCurrentGroupColor());
+	}
+
+	@Test
+	public void testGetChildGroupColor() {
+		assertEquals(Color.green, hvConfig.getChildGroupColor ());
+	}
+
+	@Test
+	public void testGetParentGroupColor() {
+		assertEquals(Color.black, hvConfig.getParentGroupColor());
+	}
+
+	@Test
+	public void testGetOtherGroupColor() {
+		assertEquals(Color.lightGray, hvConfig.getOtherGroupColor() );
+	}
+
+	
+	@Test
+	public void testGetAncestorGroupColor() {
+		assertEquals(Color.blue.brighter(), hvConfig.getAncestorGroupColor() );
+	}
+
+	
+
+	@Test
+	public void testGetBackgroundColor() {
+		assertEquals(new Color( -1 ), hvConfig.getBackgroundColor() );
+	}
+
+	
+
+	@Test
+	public void testGetHistogramColor() {
+		assertEquals(Color.magenta, hvConfig.getHistogramColor() );
+	}
+
+	
+
+	@Test
+	public void testGetPointSize() {
+		assertEquals(3, hvConfig.getPointSize());
+	}
+
+
+	
+	@Test
+	public void testGetNumberOfHistogramBins() {
+		assertEquals(100, hvConfig.getNumberOfHistogramBins() );
+	}
+
+	@Test
+	public void testGetDoubleFormatPrecision() {
+		assertEquals(3, hvConfig.getDoubleFormatPrecision());
+	}
+
+	
+	@Test
+	public void testIsMeasuresUseSubtree() {
+		assertEquals(false, hvConfig.isMeasuresUseSubtree());
+
+	}
+
+
+	@Test
+	public void testGetPreferredLookAndFeel() {
+		assertEquals("", hvConfig.getPreferredLookAndFeel());
+	}
+
+
+
+	@Test
+	public void testIsStopXfceLafChange() {
+		assertEquals(false, hvConfig.isStopXfceLafChange());
+	}
+
+	@Test
+	public void testGetHkClusters() {
+		assertEquals(2, hvConfig.getHkClusters());
+	}
+
+
+
+	@Test
+	public void testGetHkIterations() {
+		assertEquals(10, hvConfig.getHkIterations());
+	}
+
+
+
+	@Test
+	public void testGetHkRepetitions() {
+		assertEquals(10, hvConfig.getHkRepetitions());
+	}
+
+
+	@Test
+	public void testGetHkDendrogramHeight() {
+		assertEquals(2, hvConfig.getHkDendrogramHeight());
+	}
+
+
+	@Test
+	public void testGetHkMaxNodes() {
+		assertEquals(-1, hvConfig.getHkMaxNodes());
+	}
+
+
+	@Test
+	public void testGetHkEpsilon() {
+		assertEquals(10, hvConfig.getHkEpsilon());
+	}
+
+
+	@Test
+	public void testGetHkLittleValue() {
+		assertEquals(5, hvConfig.getHkLittleValue());
+	}
+
+
+	@Test
+	public void testIsHkWithTrueClass() {
+		assertEquals(true, hvConfig.isHkWithTrueClass());
+	}
+
+
+
+	@Test
+	public void testIsHkWithInstanceNames() {
+		assertEquals(false, hvConfig.isHkWithInstanceNames());
+	}
+
+
+	@Test
+	public void testIsHkWithDiagonalMatrix() {
+		assertEquals(true, hvConfig.isHkWithDiagonalMatrix());
+	}
+
+
+
+	@Test
+	public void testIsHkNoStaticCenter() {
+		assertEquals(false, hvConfig.isHkNoStaticCenter());
+	}
+
+
+	@Test
+	public void testIsHkGenerateImages() {
+		assertEquals(false, hvConfig.isHkGenerateImages());
 	}
 
 }
