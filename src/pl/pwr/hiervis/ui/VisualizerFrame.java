@@ -155,7 +155,12 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	{
 		return tabPane.getSelectedIndex();
 	}
-
+	
+	public String getSelectedTabTitle()
+	{
+		return tabPane.getTitleAt( tabPane.getSelectedIndex());
+	}
+	
 	public void closeTab( int index )
 	{
 		log.trace( "Closing tab '" + tabPane.getTitleAt( index ) + "'" );
@@ -381,7 +386,7 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	/**
 	 * Opens a file selection dialog, allowing the user to select a hierarchy file to load.
 	 */
-	private void openFileSelectionDialog()
+	public void openFileSelectionDialog()
 	{
 		JFileChooser fileDialog = new JFileChooser();
 		fileDialog.setCurrentDirectory( new File( "." ) );
@@ -401,7 +406,7 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	/**
 	 * Opens a file selection dialog, allowing the user to select a destination file to save the hierarchy to.
 	 */
-	private void openSaveDialog()
+	public void openSaveDialog()
 	{
 		JFileChooserEx fileDialog = new JFileChooserEx();
 		fileDialog.setCurrentDirectory( new File( "." ) );
@@ -439,7 +444,7 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	 * If the user made changes to the application's settings, the hierarchy visualization
 	 * is recreated.
 	 */
-	private void openConfigDialog()
+	public void openConfigDialog()
 	{
 		ConfigDialog dialog = new ConfigDialog( context, this );
 

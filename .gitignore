@@ -4,6 +4,9 @@ build/
 *.class
 *.tmp
 *.bak
+*.csv
+config.json
+/resources
 ~$*
 logs/
 # Mobile Tools for Java (J2ME)
