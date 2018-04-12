@@ -117,6 +117,8 @@ public final class NewGui {
 		}
 
 		try {
+			//sciezka do skryptow zmienia sie gdy budujemy przez ant builda 
+			//context.getMeasureManager().loadMeasureFiles( Paths.get( "scripts/measures" ) );
 			context.getMeasureManager().loadMeasureFiles( Paths.get( "skel/scripts/measures" ) );
 		}
 		catch ( IOException e ) {
