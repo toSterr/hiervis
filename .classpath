@@ -26,6 +26,5 @@
 	<classpathentry kind="lib" path="submodules/hierarchy_measures/submodules/basic_hierarchy/libs/weka.jar"/>
 	<classpathentry kind="lib" path="lib/flexdock-1.2.4.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.1.1.jar"/>
-	<classpathentry kind="src" path="resources"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
