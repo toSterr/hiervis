@@ -496,9 +496,30 @@ public class VisualizerFrame extends JFrame implements ActionListener
 		);
 	}
 
+	private boolean fileNotEmpty (File file)
+	{
+		if (file.length()!=0)
+		{
+			return true;
+		}
+		else
+		{
+			SwingUtilities.invokeLater(
+					() -> {
+						SwingUIUtils.showInfoDialog(
+							"An error ocurred while loading a empty file.");
+					}
+				);
+			return false;
+		}
+	}
+	
 	private void loadFile( File file )
 	{
-		context.loadFile( this, file );
+		if ( fileNotEmpty(file)  )
+		{
+			context.loadFile( this, file );
+		}
 	}
 
 	private Display getCurrentHierarchyDisplay()
