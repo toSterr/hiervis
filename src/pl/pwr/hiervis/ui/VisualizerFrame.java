@@ -507,7 +507,7 @@ public class VisualizerFrame extends JFrame implements ActionListener
 			SwingUtilities.invokeLater(
 					() -> {
 						SwingUIUtils.showInfoDialog(
-							"An error ocurred while loading a empty file.");
+							"It is not posible to load a empty file.");
 					}
 				);
 			return false;
