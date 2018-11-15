@@ -10,7 +10,7 @@
   "numberOfHistogramBins" : 100,
   "doubleFormatPrecision" : 3,
   "measuresUseSubtree" : false,
-  "preferredLookAndFeel" : "Windows",
+  "preferredLookAndFeel" : "",
   "stopXfceLafChange" : false,
   "hkClusters" : 2,
   "hkIterations" : 10,

@@ -77,7 +77,21 @@ public class HierarchyUtils
 			source.options
 		);
 	}
-
+	
+	public static double [][] toMatrix( Hierarchy source )
+	{
+		double matrix [][]= new double [source.getOverallNumberOfInstances()][((BasicInstance)source.getRoot().getNodeInstances().get(0)).getData().length ];
+		
+		LinkedList<Instance> list = source.getRoot().getSubtreeInstances();
+		
+		for (int i=0; i< list.size(); i++)
+		{
+			matrix[i]=list.get(i).getData();
+		}
+		
+		return matrix;
+	}
+		
 	public static Hierarchy merge( Hierarchy source, Hierarchy dest, String nodeId )
 	{
 		final boolean useSubtree = false;
@@ -124,7 +138,7 @@ public class HierarchyUtils
 
 		List<BasicNode> nodes = new LinkedList<>();
 		nodes.add( root );
-
+		
 		source.getMainHierarchy().getRoot().getSubtreeInstances().forEach(
 			in -> {
 				root.addInstance(
