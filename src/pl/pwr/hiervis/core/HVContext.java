@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.common.HierarchyBuilder;
 import basic_hierarchy.interfaces.Hierarchy;
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
@@ -29,7 +30,6 @@ import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.ui.OperationProgressFrame;
 import prefuse.Visualization;
 
-
 /**
  * A way to pass various application data around, without having to rely on
  * statically-accessible variables and states, or the singleton pattern.
@@ -39,7 +39,7 @@ import prefuse.Visualization;
  */
 public class HVContext
 {
-	private static final Logger log = LogManager.getLogger( HVContext.class );
+	private static final Logger log = LogManager.getLogger(HVContext.class);
 
 	// Events
 
@@ -63,6 +63,12 @@ public class HVContext
 	/** Send when the app configuration has changed. */
 	public final Event<HVConfig> configChanged = new Event<>();
 
+	/** Sent when dimension method is performed. */
+	public final Event<DimensionReduction> dimensionReductionCalculating = new Event<DimensionReduction>();
+	/** Sent when dimension method is done calculating. */
+	public final Event<LoadedHierarchy> dimensionReductionCalculated = new Event<LoadedHierarchy>();
+	/** Sent when dimension method is selected. */
+	public final Event<DimensionReduction> dimensionReductionSelected = new Event<DimensionReduction>();
 
 	// Members
 
@@ -79,25 +85,25 @@ public class HVContext
 	private HierarchyStatisticsFrame statsFrame;
 	private InstanceVisualizationsFrame visFrame;
 
-
 	public HVContext()
 	{
-		setConfig( new HVConfig() );
+		setConfig(new HVConfig());
 
 		measureManager = new MeasureManager();
 
-		hierarchyChanged.addListener( this::onHierarchyChanged );
+		hierarchyChanged.addListener(this::onHierarchyChanged);
 	}
 
-	public void createGUI( String subtitle )
+	public void createGUI(String subtitle)
 	{
-		if ( hierarchyFrame == null ) {
-			hierarchyFrame = new VisualizerFrame( this, subtitle );
-			statsFrame = new HierarchyStatisticsFrame( this, hierarchyFrame, subtitle );
-			visFrame = new InstanceVisualizationsFrame( this, hierarchyFrame, subtitle );
+		if (hierarchyFrame == null)
+		{
+			hierarchyFrame = new VisualizerFrame(this, subtitle);
+			statsFrame = new HierarchyStatisticsFrame(this, hierarchyFrame, subtitle);
+			visFrame = new InstanceVisualizationsFrame(this, hierarchyFrame, subtitle);
 
-			hierarchyFrame.hierarchyTabClosed.addListener( this::onHierarchyTabClosed );
-			hierarchyFrame.hierarchyTabSelected.addListener( this::onHierarchyTabSelected );
+			hierarchyFrame.hierarchyTabClosed.addListener(this::onHierarchyTabClosed);
+			hierarchyFrame.hierarchyTabSelected.addListener(this::onHierarchyTabSelected);
 		}
 	}
 
@@ -113,14 +119,15 @@ public class HVContext
 	// -------------------------------------------------------------------------------------------
 	// Getters / setters
 
-	public void setConfig( HVConfig config )
+	public void setConfig(HVConfig config)
 	{
-		if ( config == null )
+		if (config == null)
 			return;
-		if ( this.config == null || !this.config.equals( config ) ) {
-			configChanging.broadcast( this.config );
+		if (this.config == null || !this.config.equals(config))
+		{
+			configChanging.broadcast(this.config);
 			this.config = config;
-			configChanged.broadcast( config );
+			configChanged.broadcast(config);
 		}
 	}
 
@@ -134,23 +141,24 @@ public class HVContext
 		return measureManager;
 	}
 
-	public void setHierarchy( LoadedHierarchy hierarchy )
+	public void setHierarchy(LoadedHierarchy hierarchy)
 	{
-		if ( this.currentHierarchy != hierarchy ) {
-			hierarchyChanging.broadcast( this.currentHierarchy );
+		if (this.currentHierarchy != hierarchy)
+		{
+			hierarchyChanging.broadcast(this.currentHierarchy);
 			this.currentHierarchy = hierarchy;
 
-			if ( hierarchy != null ) {
-				if ( hierarchy.isProcessed() ) {
-					hierarchyChanged.broadcast( hierarchy );
+			if (hierarchy != null)
+			{
+				if (hierarchy.isProcessed())
+				{
+					hierarchyChanged.broadcast(hierarchy);
 				}
-				else {
-					SwingUIUtils.executeAsyncWithWaitWindow(
-						null, "Processing hierarchy data...", log, true,
-						() -> hierarchy.processHierarchy( config ),
-						() -> hierarchyChanged.broadcast( hierarchy ),
-						null
-					);
+				else
+				{
+					SwingUIUtils.executeAsyncWithWaitWindow(null, "Processing hierarchy data...", log, true,
+							() -> hierarchy.processHierarchy(config), () -> hierarchyChanged.broadcast(hierarchy),
+							null);
 				}
 			}
 		}
@@ -161,30 +169,31 @@ public class HVContext
 		return currentHierarchy;
 	}
 
-	public int getHierarchyIndex( LoadedHierarchy h )
+	public int getHierarchyIndex(LoadedHierarchy h)
 	{
-		return hierarchyList.indexOf( h );
+		return hierarchyList.indexOf(h);
 	}
 
 	public LoadedHierarchy.Options getHierarchyOptions()
 	{
-		return currentHierarchy == null
-			? LoadedHierarchy.Options.DEFAULT
-			: currentHierarchy.options;
+		return currentHierarchy == null ? LoadedHierarchy.Options.DEFAULT : currentHierarchy.options;
 	}
 
-	public void setCurrentHKWrapper( HKPlusPlusWrapper wrapper )
+	public void setCurrentHKWrapper(HKPlusPlusWrapper wrapper)
 	{
-		if ( wrapper == null ) {
-			throw new IllegalArgumentException( "Wrapper must not be null." );
+		if (wrapper == null)
+		{
+			throw new IllegalArgumentException("Wrapper must not be null.");
 		}
-		if ( currentHKWrapper != null ) {
-			throw new IllegalStateException( "Cannot set current wrapper, because the old one has not been disposed of yet." );
+		if (currentHKWrapper != null)
+		{
+			throw new IllegalStateException(
+					"Cannot set current wrapper, because the old one has not been disposed of yet.");
 		}
 
 		currentHKWrapper = wrapper;
-		currentHKWrapper.subprocessAborted.addListener( this::onHKSubprocessAborted );
-		currentHKWrapper.subprocessFinished.addListener( this::onHKSubprocessFinished );
+		currentHKWrapper.subprocessAborted.addListener(this::onHKSubprocessAborted);
+		currentHKWrapper.subprocessFinished.addListener(this::onHKSubprocessFinished);
 	}
 
 	public HKPlusPlusWrapper getCurrentHKWrapper()
@@ -202,20 +211,19 @@ public class HVContext
 	 */
 	public int getSelectedRow()
 	{
-		return currentHierarchy == null
-			? -1
-			: currentHierarchy.getSelectedRow();
+		return currentHierarchy == null ? -1 : currentHierarchy.getSelectedRow();
 	}
 
-	public void setSelectedRow( int row )
+	public void setSelectedRow(int row)
 	{
-		if ( currentHierarchy == null )
+		if (currentHierarchy == null)
 			return;
 
-		if ( currentHierarchy.getSelectedRow() != row ) {
-			nodeSelectionChanging.broadcast( row );
-			currentHierarchy.setSelectedRow( row );
-			nodeSelectionChanged.broadcast( row );
+		if (currentHierarchy.getSelectedRow() != row)
+		{
+			nodeSelectionChanging.broadcast(row);
+			currentHierarchy.setSelectedRow(row);
+			nodeSelectionChanged.broadcast(row);
 		}
 	}
 
@@ -239,198 +247,208 @@ public class HVContext
 
 	public Visualization createHierarchyVisualization()
 	{
-		return HierarchyProcessor.createTreeVisualization( this );
+		return HierarchyProcessor.createTreeVisualization(this);
 	}
 
 	/**
 	 * Loads the specified file as a CSV file describing a {@link Hierarchy} object.
 	 * 
 	 * @param window
-	 *            a window, used to anchor dialog windows with file loading options / error messages.
-	 *            Typically this is the window from which the loading command was issued.
+	 *            a window, used to anchor dialog windows with file loading options
+	 *            / error messages. Typically this is the window from which the
+	 *            loading command was issued.
 	 * @param file
 	 *            the file to load
 	 */
-	public void loadFile( Window window, File file )
+	public void loadFile(Window window, File file)
 	{
-		log.trace( String.format( "Selected file: '%s'", file ) );
+		log.trace(String.format("Selected file: '%s'", file));
 
 		LoadedHierarchy.Options options = null;
-		try {
-			options = LoadedHierarchy.Options.detect( file );
+		try
+		{
+			options = LoadedHierarchy.Options.detect(file);
 		}
-		catch ( IOException e ) {
+		catch (IOException e)
+		{
 			// Something went wrong, just roll with previous options.
 			options = getHierarchyOptions();
 		}
 
-		FileLoadingOptionsDialog optionsDialog = new FileLoadingOptionsDialog( this, window, options );
-		optionsDialog.setLocationRelativeTo( window );
-		optionsDialog.setVisible( true );
+		FileLoadingOptionsDialog optionsDialog = new FileLoadingOptionsDialog(this, window, options);
+		optionsDialog.setLocationRelativeTo(window);
+		optionsDialog.setVisible(true);
 
 		options = optionsDialog.getOptions();
-		if ( options == null ) {
-			log.trace( "Loading aborted." );
+		if (options == null)
+		{
+			log.trace("Loading aborted.");
 		}
-		else {
-			loadFile( window, file, options );
+		else
+		{
+			loadFile(window, file, options);
 		}
 	}
 
 	/**
-	 * Same as {@link #loadFile(Window, File)}, except this method allows to specify different
-	 * options to use while loading this file.
+	 * Same as {@link #loadFile(Window, File)}, except this method allows to specify
+	 * different options to use while loading this file.
 	 * 
 	 * @param window
-	 *            a window, used to anchor dialog windows with file loading options / error messages.
-	 *            Typically this is the window from which the loading command was issued.
+	 *            a window, used to anchor dialog windows with file loading options
+	 *            / error messages. Typically this is the window from which the
+	 *            loading command was issued.
 	 * @param file
 	 *            the file to load
 	 * @param hasInstanceName
-	 *            if true, the reader will assume that the file includes a column containing instance names
+	 *            if true, the reader will assume that the file includes a column
+	 *            containing instance names
 	 * @param hasTrueClass
-	 *            if true, the reader will assume that the file includes a column containing true class
+	 *            if true, the reader will assume that the file includes a column
+	 *            containing true class
 	 * @param hasHeader
-	 *            if true, the reader will assume that the first row contains column headers, specifying the name for each column
+	 *            if true, the reader will assume that the first row contains column
+	 *            headers, specifying the name for each column
 	 * @param fillBreadth
-	 *            if true, the {@link HierarchyBuilder} will attempt to fix the raw hierarchy built from the file.
+	 *            if true, the {@link HierarchyBuilder} will attempt to fix the raw
+	 *            hierarchy built from the file.
 	 * @param useSubtree
-	 *            whether the centroid calculation should also include child groups' instances.
+	 *            whether the centroid calculation should also include child groups'
+	 *            instances.
 	 */
-	public void loadFile(
-		Window window, File file,
-		boolean hasInstanceName, boolean hasTrueClass, boolean hasHeader, boolean fillBreadth, boolean useSubtree )
+	public void loadFile(Window window, File file, boolean hasInstanceName, boolean hasTrueClass, boolean hasHeader,
+			boolean fillBreadth, boolean useSubtree)
 	{
-		LoadedHierarchy.Options options = new LoadedHierarchy.Options(
-			hasInstanceName, hasTrueClass, hasHeader, fillBreadth, useSubtree
-		);
+		LoadedHierarchy.Options options = new LoadedHierarchy.Options(hasInstanceName, hasTrueClass, hasHeader,
+				fillBreadth, useSubtree);
 
-		loadFile( window, file, options );
+		loadFile(window, file, options);
 	}
 
 	/**
-	 * Same as {@link #loadFile(Window, File)}, except this method allows to specify different
-	 * options to use while loading this file.
+	 * Same as {@link #loadFile(Window, File)}, except this method allows to specify
+	 * different options to use while loading this file.
 	 * 
 	 * @param window
-	 *            a window, used to anchor dialog windows with file loading options / error messages.
-	 *            Typically this is the window from which the loading command was issued.
+	 *            a window, used to anchor dialog windows with file loading options
+	 *            / error messages. Typically this is the window from which the
+	 *            loading command was issued.
 	 * @param file
 	 *            the file to load
 	 * @param options
 	 *            the options to use with the specified file
 	 */
-	public void loadFile( Window window, File file, LoadedHierarchy.Options options )
+	public void loadFile(Window window, File file, LoadedHierarchy.Options options)
 	{
-		HierarchyLoaderThread thread = new HierarchyLoaderThread( file, options );
+		HierarchyLoaderThread thread = new HierarchyLoaderThread(file, options);
 
-		OperationProgressFrame progressFrame = new OperationProgressFrame( window, "Loading..." );
-		progressFrame.setProgressUpdateCallback( thread::getProgress );
-		progressFrame.setStatusUpdateCallback( thread::getStatusMessage );
-		progressFrame.setProgressPollInterval( 100 );
-		progressFrame.setModal( true );
-		progressFrame.setAbortOperation(
-			e -> {
-				thread.interrupt();
-				progressFrame.dispose();
-			}
-		);
+		OperationProgressFrame progressFrame = new OperationProgressFrame(window, "Loading...");
+		progressFrame.setProgressUpdateCallback(thread::getProgress);
+		progressFrame.setStatusUpdateCallback(thread::getStatusMessage);
+		progressFrame.setProgressPollInterval(100);
+		progressFrame.setModal(true);
+		progressFrame.setAbortOperation(e ->
+		{
+			thread.interrupt();
+			progressFrame.dispose();
+		});
 
-		thread.fileLoaded.addListener( h -> SwingUtilities.invokeLater( () -> progressFrame.dispose() ) );
-		thread.errorOcurred.addListener( e -> SwingUtilities.invokeLater( () -> progressFrame.dispose() ) );
-		thread.fileLoaded.addListener( this::onFileLoaded );
-		thread.errorOcurred.addListener( this::onFileError );
+		thread.fileLoaded.addListener(h -> SwingUtilities.invokeLater(() -> progressFrame.dispose()));
+		thread.errorOcurred.addListener(e -> SwingUtilities.invokeLater(() -> progressFrame.dispose()));
+		thread.fileLoaded.addListener(this::onFileLoaded);
+		thread.errorOcurred.addListener(this::onFileError);
 
 		thread.start();
 
-		progressFrame.setSize( new Dimension( 300, 150 ) );
-		progressFrame.setLocationRelativeTo( window );
-		progressFrame.setVisible( true );
+		progressFrame.setSize(new Dimension(300, 150));
+		progressFrame.setLocationRelativeTo(window);
+		progressFrame.setVisible(true);
 	}
 
 	/**
-	 * Loads the specified hierarchy and creates a new tab for it with the specified name
+	 * Loads the specified hierarchy and creates a new tab for it with the specified
+	 * name
 	 * 
 	 * @param tabName
 	 *            the name of the tab in the GUI
 	 * @param hierarchy
 	 *            the hierarchy to load and associate with the tab
 	 */
-	public void loadHierarchy( String tabName, LoadedHierarchy hierarchy )
+	public void loadHierarchy(String tabName, LoadedHierarchy hierarchy)
 	{
-		hierarchyList.add( hierarchy );
-		hierarchyFrame.createHierarchyTab( tabName );
+		hierarchyList.add(hierarchy);
+		hierarchyFrame.createHierarchyTab(tabName);
 
-		setHierarchy( hierarchy );
+		setHierarchy(hierarchy);
 	}
 
 	// -------------------------------------------------------------------------------------------
 	// Listeners
 
-	private void onFileLoaded( Pair<File, LoadedHierarchy> args )
+	private void onFileLoaded(Pair<File, LoadedHierarchy> args)
 	{
-		SwingUtilities.invokeLater(
-			() -> {
-				File file = args.getLeft();
-				LoadedHierarchy loadedHierarchy = args.getRight();
-				loadHierarchy( file.getName(), loadedHierarchy );
-			}
-		);
+		SwingUtilities.invokeLater(() ->
+		{
+			File file = args.getLeft();
+			LoadedHierarchy loadedHierarchy = args.getRight();
+			loadHierarchy(file.getName(), loadedHierarchy);
+		});
 	}
 
-	private void onFileError( Exception ex )
+	private void onFileError(Exception ex)
 	{
-		SwingUtilities.invokeLater(
-			() -> {
-				SwingUIUtils.showInfoDialog(
-					"An error ocurred while loading the specified file. Most often this happens when " +
-						"incorrect settings were selected for the file in question." +
-						"\n\nError message:\n" + ex.getMessage()
-				);
-			}
-		);
+		SwingUtilities.invokeLater(() ->
+		{
+			SwingUIUtils
+					.showInfoDialog("An error ocurred while loading the specified file. Most often this happens when "
+							+ "incorrect settings were selected for the file in question." + "\n\nError message:\n"
+							+ ex.getMessage());
+		});
 	}
 
-	private void onHierarchyChanged( LoadedHierarchy h )
+	private void onHierarchyChanged(LoadedHierarchy h)
 	{
-		measureManager.postAutoComputeTasksFor( h.measureHolder, h.getMainHierarchy() );
+		measureManager.postAutoComputeTasksFor(h.measureHolder, h.getMainHierarchy());
 
 		System.gc();
 	}
 
-	private void onHierarchyTabSelected( int index )
+	private void onHierarchyTabSelected(int index)
 	{
-		setHierarchy( hierarchyList.get( index ) );
+		setHierarchy(hierarchyList.get(index));
 	}
 
-	private void onHierarchyTabClosed( int index )
+	private void onHierarchyTabClosed(int index)
 	{
-		LoadedHierarchy h = hierarchyList.get( index );
+		LoadedHierarchy h = hierarchyList.get(index);
 
-		hierarchyClosing.broadcast( h );
+		hierarchyClosing.broadcast(h);
 
-		hierarchyList.remove( h );
+		hierarchyList.remove(h);
 		h.dispose();
 
-		if ( currentHierarchy == h ) {
-			setHierarchy( null );
+		if (currentHierarchy == h)
+		{
+			setHierarchy(null);
 		}
 
-		hierarchyClosed.broadcast( h );
+		hierarchyClosed.broadcast(h);
 
 		System.gc();
 	}
 
-	private void onHKSubprocessAborted( HKPlusPlusWrapper wrapper )
+	private void onHKSubprocessAborted(HKPlusPlusWrapper wrapper)
 	{
-		if ( wrapper == currentHKWrapper ) {
+		if (wrapper == currentHKWrapper)
+		{
 			currentHKWrapper = null;
 		}
 	}
 
-	private void onHKSubprocessFinished( Pair<HKPlusPlusWrapper, Integer> args )
+	private void onHKSubprocessFinished(Pair<HKPlusPlusWrapper, Integer> args)
 	{
-		if ( args.getKey() == currentHKWrapper ) {
+		if (args.getKey() == currentHKWrapper)
+		{
 			currentHKWrapper = null;
 		}
 	}

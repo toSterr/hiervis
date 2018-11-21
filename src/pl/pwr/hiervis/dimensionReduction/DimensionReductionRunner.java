@@ -2,6 +2,7 @@ package pl.pwr.hiervis.dimensionReduction;
 
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionRunner extends Thread
 {
@@ -23,10 +24,13 @@ public class DimensionReductionRunner extends Thread
 		String tabTitle = "[" + dimensionReduction.getClass().getSimpleName() + "] "
 				+ context.getHierarchyFrame().getSelectedTabTitle();
 
-		context.loadHierarchy(tabTitle, dimensionReduction.reduceHierarchy(context.getHierarchy()));
+		LoadedHierarchy loadedHierarchy = dimensionReduction.reduceHierarchy(context.getHierarchy());
+		context.loadHierarchy(tabTitle, loadedHierarchy);
 
 		long elapsedTime = System.currentTimeMillis() - start;
 		System.out.println("Elapsed Time: " + elapsedTime / (1000F) + " sec");
+
+		context.dimensionReductionCalculated.broadcast(loadedHierarchy);
 	}
 
 }

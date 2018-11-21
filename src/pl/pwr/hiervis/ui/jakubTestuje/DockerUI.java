@@ -32,6 +32,7 @@ import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunner;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.ui.ConfirmationDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionDialog;
+import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionWrapInstanceVisualizationsFrame;
 import pl.pwr.hiervis.dimensionReduction.ui.MdsDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.PcaDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.StarCoordsDialog;
@@ -106,7 +107,9 @@ public class DockerUI extends JFrame implements DockingConstants
 
 		viewVis = new View("Visu", "Visualisation");
 		viewVis.setName("Visu");
-		viewVis.setContentPane(context.getInstanceFrame().getContentPane());
+		DimensionReductionWrapInstanceVisualizationsFrame wraper = new DimensionReductionWrapInstanceVisualizationsFrame(
+				context);
+		viewVis.setContentPane(wraper.getContentPane());
 		viewVis.setTerritoryBlocked(CENTER_REGION, true);
 		viewVis.getDockingProperties().setDockingEnabled(false);
 
@@ -260,6 +263,7 @@ public class DockerUI extends JFrame implements DockingConstants
 						dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
 						dimensionReductionRunner.start();
 						confirmationDialog.showDialog();
+						context.dimensionReductionCalculating.broadcast(dimensionReduction);
 					}
 					catch (Exception exception)
 					{
