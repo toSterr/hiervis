@@ -26,10 +26,10 @@
 	<classpathentry kind="lib" path="submodules/hierarchy_measures/submodules/basic_hierarchy/libs/weka.jar"/>
 	<classpathentry kind="lib" path="lib/flexdock-1.2.4.jar"/>
 	<classpathentry kind="lib" path="lib/looks-2.1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/JC-pc/Documents/GitHub/hiervis/lib/mdsj.jar"/>
-	<classpathentry kind="lib" path="C:/Users/JC-pc/Documents/GitHub/hiervis/lib/tsne/core-0.26.jar"/>
-	<classpathentry kind="lib" path="C:/Users/JC-pc/Documents/GitHub/hiervis/lib/tsne/equation-0.26.jar"/>
-	<classpathentry kind="lib" path="C:/Users/JC-pc/Documents/GitHub/hiervis/lib/tsne/native_system-java-1.1.jar"/>
-	<classpathentry kind="lib" path="C:/Users/JC-pc/Documents/GitHub/hiervis/lib/tsne/tsne.jar"/>
+	<classpathentry kind="lib" path="lib/tsne/core-0.26.jar"/>
+	<classpathentry kind="lib" path="lib/tsne/equation-0.26.jar"/>
+	<classpathentry kind="lib" path="lib/tsne/native_system-java-1.1.jar"/>
+	<classpathentry kind="lib" path="lib/tsne/tsne.jar"/>
+	<classpathentry kind="lib" path="lib/mdsj.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
