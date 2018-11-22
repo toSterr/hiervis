@@ -20,17 +20,13 @@ public class DimensionReductionRunner extends Thread
 	public void run()
 	{
 		long start = System.currentTimeMillis();
-
-		String tabTitle = "[" + dimensionReduction.getClass().getSimpleName() + "] "
-				+ context.getHierarchyFrame().getSelectedTabTitle();
-
-		LoadedHierarchy loadedHierarchy = dimensionReduction.reduceHierarchy(context.getHierarchy());
-		context.loadHierarchy(tabTitle, loadedHierarchy);
+		LoadedHierarchy inputLoadedHierarchy= context.getHierarchy();
+		LoadedHierarchy outputLoadedHierarchy = dimensionReduction.reduceHierarchy(inputLoadedHierarchy);
 
 		long elapsedTime = System.currentTimeMillis() - start;
 		System.out.println("Elapsed Time: " + elapsedTime / (1000F) + " sec");
 
-		context.dimensionReductionCalculated.broadcast(loadedHierarchy);
+		context.dimensionReductionCalculated.broadcast(new CalculatedDimensionReduction( inputLoadedHierarchy,dimensionReduction,outputLoadedHierarchy));
 	}
 
 }

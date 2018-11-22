@@ -2,7 +2,6 @@ package pl.pwr.hiervis.ui.jakubTestuje;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.io.File;
 
@@ -28,15 +27,12 @@ import org.flexdock.view.Viewport;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
+import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunner;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.ui.ConfirmationDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionWrapInstanceVisualizationsFrame;
-import pl.pwr.hiervis.dimensionReduction.ui.MdsDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.PcaDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.StarCoordsDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.TsneDialog;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.ui.VisualizerFrame;
 import pl.pwr.hiervis.util.Event;
@@ -87,6 +83,10 @@ public class DockerUI extends JFrame implements DockingConstants
 		context.hierarchyChanged.addListener(this::onHierarchyChanged);
 		context.getHierarchyFrame().hierarchyTabClosed.addListener(this::onHierarchyTabClosed);
 
+		context.dimensionReductionSelected.addListener(this::onDimensionReductionSelected);
+	
+		context.dimensionReductionCalculated.addListener(this::onDimensionReductionCalculated);
+		
 		SwingUIUtils.addCloseCallback(this, this::onWindowClosing);
 	}
 
@@ -179,9 +179,10 @@ public class DockerUI extends JFrame implements DockingConstants
 		DockingManager.setFloatingEnabled(false);
 
 		JFrame f = new DockerUI(hvContext);
-		Rectangle r = SwingUIUtils.getEffectiveDisplayArea(null);
-
-		f.setSize((int) r.getWidth(), (int) r.getHeight());
+		//Rectangle r = SwingUIUtils.getEffectiveDisplayArea(null);
+		//f.setSize((int) r.getWidth(), (int) r.getHeight());
+		
+		f.setSize(400, 400);
 		f.setVisible(true);
 	}
 
@@ -228,34 +229,27 @@ public class DockerUI extends JFrame implements DockingConstants
 		mnFile.add(mntmConfig);
 	}
 
+	//TODO delete this and all references to this menu bar
 	private void createDimRedMenu(JMenuBar menuBar)
 	{
 		JMenu mnRedu = new JMenu("Dimension Reduction");
 		mnRedu.setMnemonic(KeyEvent.VK_R);
 		menuBar.add(mnRedu);
 
-		mntmReduce = new JMenuItem[4];
 
-		DimensionReductionDialog dimReductionDialogs[] = new DimensionReductionDialog[4];
-		dimReductionDialogs[0] = new StarCoordsDialog();
-		dimReductionDialogs[1] = new MdsDialog();
-		dimReductionDialogs[2] = new PcaDialog();
-		dimReductionDialogs[3] = new TsneDialog();
+		DimensionReductionDialog dimReductionDialogs[] = context.getDimensionReductionMenager().getDialogs();
+		mntmReduce = new JMenuItem[dimReductionDialogs.length];
+		
 		ConfirmationDialog confirmationDialog = new ConfirmationDialog();
 
-		for (int i = 0; i < 4; i++)
+		for (int i = 0; i < 0; i++)
 		{
 			final int j = i;
 			mntmReduce[i] = new JMenuItem(dimReductionDialogs[j].getName());
 
 			mntmReduce[i].addActionListener(e ->
 			{
-				int maxDimension = HierarchyUtils.getFirstInstance(context.getHierarchy().getMainHierarchy())
-						.getData().length;
-				int pointsAmount = context.getHierarchy().getMainHierarchy().getOverallNumberOfInstances();
-
-				DimensionReduction dimensionReduction = dimReductionDialogs[j].showDialog(maxDimension, pointsAmount);
-
+				DimensionReduction dimensionReduction = dimReductionDialogs[j].showDialog(context);
 				if (dimensionReduction != null)
 				{
 					try
@@ -351,6 +345,24 @@ public class DockerUI extends JFrame implements DockingConstants
 		}
 	}
 
+	private void onDimensionReductionSelected(DimensionReduction dimensionReduction)
+	{
+		if (dimensionReduction!=null)
+		{
+			ConfirmationDialog confirmationDialog = new ConfirmationDialog();
+			dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
+			dimensionReductionRunner.start();
+			confirmationDialog.showDialog();
+			context.dimensionReductionCalculating.broadcast(dimensionReduction);
+		}	
+	}
+	
+	private void onDimensionReductionCalculated(CalculatedDimensionReduction t)
+	{
+			String tabTitle = "[" + t.dimensionReduction.getClass().getSimpleName() + "] "
+					+ context.getHierarchyFrame().getSelectedTabTitle();
+			context.loadHierarchy(tabTitle, t.outputLoadedHierarchy);
+	}
 	private void onWindowClosing()
 	{
 		log.trace("Closing application...");

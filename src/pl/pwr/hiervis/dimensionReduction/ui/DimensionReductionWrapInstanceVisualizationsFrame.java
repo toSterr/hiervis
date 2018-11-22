@@ -3,6 +3,9 @@ package pl.pwr.hiervis.dimensionReduction.ui;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.function.Consumer;
 
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
@@ -12,6 +15,8 @@ import javax.swing.border.EmptyBorder;
 import org.flexdock.util.SwingUtility;
 
 import pl.pwr.hiervis.core.HVContext;
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 {
@@ -79,18 +84,57 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 		panel.add(comboBox);
 
 		// TODO add based on dim methods and apply selection handler from context
-		comboBox.addItem("test");
-		comboBox.addItem("test2");
-		comboBox.addItem("test22134567890");
+		comboBox.addItem("Orginal data space");
+		
+		for (String s: context.getDimensionReductionMenager().getNames())
+			comboBox.addItem(s);
+		
+		disableSelection();
+		
+		context.hierarchyChanged.addListener(new Consumer<LoadedHierarchy>() {
+			@Override
+			public void accept(LoadedHierarchy t) {
+				comboBox.setSelectedIndex(0);
+				enableSelection();
+			}
+		});
+		
+		context.hierarchyChanging.addListener(new Consumer<LoadedHierarchy>() {
+			@Override
+			public void accept(LoadedHierarchy t) {
+				comboBox.setSelectedIndex(0);
+				disableSelection();
+			}
+		});
+		
+
+		comboBox.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println("Selection has been made: " + comboBox.getSelectedItem() );
+				if (comboBox.getSelectedIndex()>0) 
+				{
+					int x=(int) contentPane.getLocationOnScreen().getX();
+					int y=(int) contentPane.getLocationOnScreen().getY();		
+					DimensionReduction dimensionReduction = context.getDimensionReductionMenager()
+							.showDialog(comboBox.getSelectedIndex()-1, context, x , y);
+					context.dimensionReductionSelected.broadcast(dimensionReduction);
+					if (dimensionReduction==null)
+					{
+						comboBox.setSelectedIndex(0);
+					}
+				}
+			}
+		});
 	}
 
-	// TODO write function and connect it to context.hierarchyChanged or something
 	public void disableSelection()
 	{
+		comboBox.setEnabled(false);
 	}
 
-	// TODO write function and connect it to context.hierarchyChanged or something
 	public void enableSelection()
 	{
+		comboBox.setEnabled(true);
 	}
 }

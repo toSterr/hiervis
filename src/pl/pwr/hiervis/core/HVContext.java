@@ -15,6 +15,9 @@ import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.common.HierarchyBuilder;
 import basic_hierarchy.interfaces.Hierarchy;
+import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.DimensionReductionManager;
+import pl.pwr.hiervis.dimensionReduction.LoadedHierarchyWraper;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.hierarchy.HierarchyLoaderThread;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
@@ -66,7 +69,7 @@ public class HVContext
 	/** Sent when dimension method is performed. */
 	public final Event<DimensionReduction> dimensionReductionCalculating = new Event<DimensionReduction>();
 	/** Sent when dimension method is done calculating. */
-	public final Event<LoadedHierarchy> dimensionReductionCalculated = new Event<LoadedHierarchy>();
+	public final Event< CalculatedDimensionReduction> dimensionReductionCalculated = new Event<CalculatedDimensionReduction>();
 	/** Sent when dimension method is selected. */
 	public final Event<DimensionReduction> dimensionReductionSelected = new Event<DimensionReduction>();
 
@@ -76,21 +79,29 @@ public class HVContext
 	private MeasureManager measureManager = null;
 
 	/** The raw hierarchy data, as it was loaded from the file. */
+	//TODO change currentHierarchy for it wrapper
 	private LoadedHierarchy currentHierarchy = null;
 	private HKPlusPlusWrapper currentHKWrapper = null;
 
-	private List<LoadedHierarchy> hierarchyList = new ArrayList<>();
+	//private List<LoadedHierarchy> hierarchyList = new ArrayList<LoadedHierarchy>();
 
+	private LoadedHierarchyWraper currentWrapedHierarchy = null;
+	private List<LoadedHierarchyWraper> wrapedHierarchyList = new ArrayList<LoadedHierarchyWraper>();
+	
+	
 	private VisualizerFrame hierarchyFrame;
 	private HierarchyStatisticsFrame statsFrame;
 	private InstanceVisualizationsFrame visFrame;
 
+	private DimensionReductionManager dimensionReductionManager;
+	
 	public HVContext()
 	{
 		setConfig(new HVConfig());
 
 		measureManager = new MeasureManager();
-
+		dimensionReductionManager = new DimensionReductionManager();
+		
 		hierarchyChanged.addListener(this::onHierarchyChanged);
 	}
 
@@ -171,7 +182,13 @@ public class HVContext
 
 	public int getHierarchyIndex(LoadedHierarchy h)
 	{
-		return hierarchyList.indexOf(h);
+		for (int i=0; i<wrapedHierarchyList.size();i++)
+		{
+			if ( h.equals(wrapedHierarchyList.get(i).loadedHierarchy))
+				return i;
+		}
+		//return hierarchyList.indexOf(h);
+		return -1;
 	}
 
 	public LoadedHierarchy.Options getHierarchyOptions()
@@ -376,7 +393,9 @@ public class HVContext
 	 */
 	public void loadHierarchy(String tabName, LoadedHierarchy hierarchy)
 	{
-		hierarchyList.add(hierarchy);
+		//hierarchyList.add(hierarchy);
+		wrapedHierarchyList.add(new LoadedHierarchyWraper(hierarchy));
+	
 		hierarchyFrame.createHierarchyTab(tabName);
 
 		setHierarchy(hierarchy);
@@ -415,16 +434,17 @@ public class HVContext
 
 	private void onHierarchyTabSelected(int index)
 	{
-		setHierarchy(hierarchyList.get(index));
+		setHierarchy(wrapedHierarchyList.get(index).loadedHierarchy);
 	}
 
 	private void onHierarchyTabClosed(int index)
 	{
-		LoadedHierarchy h = hierarchyList.get(index);
+		LoadedHierarchy h = wrapedHierarchyList.get(index).loadedHierarchy;
 
 		hierarchyClosing.broadcast(h);
 
-		hierarchyList.remove(h);
+		//hierarchyList.remove(h);
+		wrapedHierarchyList.remove( index  );
 		h.dispose();
 
 		if (currentHierarchy == h)
@@ -451,5 +471,9 @@ public class HVContext
 		{
 			currentHKWrapper = null;
 		}
+	}
+	public DimensionReductionManager getDimensionReductionMenager()
+	{
+		return dimensionReductionManager;
 	}
 }

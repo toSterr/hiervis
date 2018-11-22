@@ -50,13 +50,13 @@ public class ConfirmationDialog extends JDialog
 	public ConfirmationDialog()
 	{
 		this.setResizable(false);
-		setBounds(100, 100, 240, 150);
+		setBounds(100, 100, 270, 150);
 		getContentPane().setLayout(null);
 
 		// Border border = BorderFactory.createLineBorder(Color.BLACK);
 
 		okButton = new JButton("OK");
-		okButton.setBounds(85, 84, 54, 26);
+		okButton.setBounds(105, 84, 54, 26);
 		getContentPane().add(okButton);
 		okButton.setActionCommand("OK");
 		okButton.addActionListener(new ActionListener()
@@ -72,7 +72,7 @@ public class ConfirmationDialog extends JDialog
 		JLabel label = new JLabel("<html>           Dimension Reduction <br> computering task started");
 		label.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		label.setHorizontalAlignment(SwingConstants.CENTER);
-		label.setBounds(1, 0, 222, 83);
+		label.setBounds(21, 0, 222, 83);
 		getContentPane().add(label);
 
 	}

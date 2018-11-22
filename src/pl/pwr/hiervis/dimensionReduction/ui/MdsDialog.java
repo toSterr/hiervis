@@ -27,6 +27,7 @@ import pl.pwr.hiervis.dimensionReduction.distanceMeasures.DistanceMeasure;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Euclidean;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Manhattan;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Minkowski;
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.MultidimensionalScaling;
 
 public class MdsDialog extends DimensionReductionDialog
@@ -64,6 +65,7 @@ public class MdsDialog extends DimensionReductionDialog
 	public MdsDialog()
 	{
 		this.setResizable(false);
+		setKeybind( (JPanel)getContentPane() );
 		setTitle("Multidimensional Scaling");
 		setBounds(100, 100, 450, 272);
 
@@ -103,6 +105,7 @@ public class MdsDialog extends DimensionReductionDialog
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
+					result=null;
 					dispose();
 				}
 			});
@@ -245,7 +248,13 @@ public class MdsDialog extends DimensionReductionDialog
 	@Override
 	public void remodel()
 	{
-		// TODO Auto-generated method stub
+		// No needed for a body for this dialog
 
+	}
+
+	@Override
+	public Class<? extends DimensionReduction> getResultClass() 
+	{
+		return MultidimensionalScaling.class;
 	}
 }

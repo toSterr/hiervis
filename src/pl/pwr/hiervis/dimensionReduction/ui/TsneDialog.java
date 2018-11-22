@@ -13,10 +13,12 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
+import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.Tsne;
 
 public class TsneDialog extends DimensionReductionDialog
@@ -61,11 +63,12 @@ public class TsneDialog extends DimensionReductionDialog
 	public TsneDialog()
 	{
 		this.setResizable(false);
-		setBounds(100, 100, 450, 455);
+		setBounds(100, 100, 332, 455);
+		setKeybind( (JPanel)getContentPane() );
 		getContentPane().setLayout(null);
 		{
 			JPanel buttonPane = new JPanel();
-			buttonPane.setBounds(0, 383, 434, 33);
+			buttonPane.setBounds(66, 389, 200, 33);
 			buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
 			getContentPane().add(buttonPane);
 			{
@@ -93,6 +96,7 @@ public class TsneDialog extends DimensionReductionDialog
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						result=null;
 						dispose();
 					}
 				});
@@ -102,12 +106,12 @@ public class TsneDialog extends DimensionReductionDialog
 		{
 			JCheckBox chckbxParallerCalculations = new JCheckBox("Paraller calculations");
 			chckbxParallerCalculations.setSelected(true);
-			chckbxParallerCalculations.setBounds(146, 189, 278, 23);
+			chckbxParallerCalculations.setBounds(66, 195, 278, 23);
 			getContentPane().add(chckbxParallerCalculations);
 		}
 		{
 			chckbxUsePca = new JCheckBox("Use PCA for predimension reduction");
-			chckbxUsePca.setBounds(146, 244, 278, 23);
+			chckbxUsePca.setBounds(66, 250, 278, 23);
 			chckbxUsePca.addChangeListener(new ChangeListener()
 			{
 
@@ -132,7 +136,7 @@ public class TsneDialog extends DimensionReductionDialog
 		}
 
 		JPanel maxIterationsPanel = new JPanel();
-		maxIterationsPanel.setBounds(146, 34, 200, 28);
+		maxIterationsPanel.setBounds(66, 40, 200, 28);
 		getContentPane().add(maxIterationsPanel);
 		{
 			spinner_iter = new JSpinner();
@@ -155,7 +159,7 @@ public class TsneDialog extends DimensionReductionDialog
 		}
 
 		JPanel perplexityPanel = new JPanel();
-		perplexityPanel.setBounds(146, 83, 200, 28);
+		perplexityPanel.setBounds(66, 89, 200, 28);
 		getContentPane().add(perplexityPanel);
 		{
 			spinner_per = new JSpinner();
@@ -166,19 +170,28 @@ public class TsneDialog extends DimensionReductionDialog
 			lblPerplexity = new JLabel("Perplexity");
 		}
 		GroupLayout gl_perplexityPanel = new GroupLayout(perplexityPanel);
-		gl_perplexityPanel.setHorizontalGroup(gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_perplexityPanel.createSequentialGroup().addGap(5)
-						.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE).addGap(5)
-						.addComponent(lblPerplexity)));
-		gl_perplexityPanel.setVerticalGroup(gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_perplexityPanel.createSequentialGroup().addGap(5).addComponent(spinner_per,
-						GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-				.addGroup(gl_perplexityPanel.createSequentialGroup().addGap(8).addComponent(lblPerplexity)));
+		gl_perplexityPanel.setHorizontalGroup(
+			gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_perplexityPanel.createSequentialGroup()
+					.addGap(5)
+					.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(lblPerplexity)
+					.addGap(72))
+		);
+		gl_perplexityPanel.setVerticalGroup(
+			gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_perplexityPanel.createSequentialGroup()
+					.addGap(5)
+					.addGroup(gl_perplexityPanel.createParallelGroup(Alignment.BASELINE)
+						.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+						.addComponent(lblPerplexity)))
+		);
 		perplexityPanel.setLayout(gl_perplexityPanel);
 		perplexityPanel.addMouseWheelListener(new spin(spinner_per));
 		{
 			JPanel tethaPanel = new JPanel();
-			tethaPanel.setBounds(146, 137, 200, 28);
+			tethaPanel.setBounds(66, 143, 200, 28);
 			getContentPane().add(tethaPanel);
 			{
 				spinner_tetha = new JSpinner();
@@ -201,7 +214,7 @@ public class TsneDialog extends DimensionReductionDialog
 		}
 		{
 			JPanel pcaPanel = new JPanel();
-			pcaPanel.setBounds(146, 289, 200, 28);
+			pcaPanel.setBounds(66, 295, 200, 28);
 			getContentPane().add(pcaPanel);
 
 			spinner = new JSpinner();
@@ -224,6 +237,7 @@ public class TsneDialog extends DimensionReductionDialog
 
 			pcaPanel.addMouseWheelListener(new spin(spinner));
 		}
+		
 	}
 
 	@Override
@@ -242,7 +256,11 @@ public class TsneDialog extends DimensionReductionDialog
 	public void remodel()
 	{
 		spinner.setModel(new SpinnerNumberModel(2, 2, maxOutputDimensions, 1));
-		spinner_per.setModel(new SpinnerNumberModel(20.0, 5.0, Math.round((pointsAmount - 1) / 3), 5.0));
+		double min=0.5;
+		double max=Math.round((pointsAmount - 1) / 3);
+		double value=Math.max(min, Math.min(20.0, max )) ;
+		double stepSize=Math.max(1, Math.round((max-min)/20) );
+		spinner_per.setModel(new SpinnerNumberModel(value, min, max, stepSize));
 
 	}
 
@@ -294,6 +312,11 @@ public class TsneDialog extends DimensionReductionDialog
 			}
 
 		}
+		
+	}
 
+	@Override
+	public Class<? extends DimensionReduction> getResultClass() {
+		return Tsne.class;
 	}
 }

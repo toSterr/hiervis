@@ -8,12 +8,12 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.PrincipalComponentAnalysis;
 
 public class PcaDialog extends DimensionReductionDialog
@@ -34,8 +34,7 @@ public class PcaDialog extends DimensionReductionDialog
 		try
 		{
 			PcaDialog dialog = new PcaDialog();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
+			dialog.showDialog(20, 10);
 		}
 		catch (Exception e)
 		{
@@ -51,6 +50,7 @@ public class PcaDialog extends DimensionReductionDialog
 
 		this.setResizable(false);
 		setBounds(100, 100, 300, 190);
+		setKeybind( (JPanel)getContentPane() );
 		getContentPane().setLayout(null);
 		{
 			JPanel buttonPane = new JPanel();
@@ -80,6 +80,7 @@ public class PcaDialog extends DimensionReductionDialog
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
+						result=null;
 						dispose();
 					}
 				});
@@ -128,5 +129,10 @@ public class PcaDialog extends DimensionReductionDialog
 	public void remodel()
 	{
 		spinner.setModel(new SpinnerNumberModel(2, 2, maxOutputDimensions, 1));
+	}
+
+	@Override
+	public Class<? extends DimensionReduction> getResultClass() {
+		return PrincipalComponentAnalysis.class;
 	}
 }
