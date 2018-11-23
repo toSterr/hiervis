@@ -259,7 +259,7 @@ public class TsneDialog extends DimensionReductionDialog
 		double min=0.5;
 		double max=Math.round((pointsAmount - 1) / 3);
 		double value=Math.max(min, Math.min(20.0, max )) ;
-		double stepSize=Math.max(1, Math.round((max-min)/20) );
+		double stepSize=Math.max(1, Math.round((max-min)/30) );
 		spinner_per.setModel(new SpinnerNumberModel(value, min, max, stepSize));
 
 	}
