@@ -20,9 +20,9 @@ public class PrincipalComponentAnalysis implements DimensionReduction
 	}
 
 	@Override
-	public LoadedHierarchy reduceHierarchy(LoadedHierarchy source)
+	public Hierarchy reduceHierarchy(LoadedHierarchy source)
 	{
-		double[][] matrix = HierarchyUtils.toMatrix(source.getMainHierarchy());
+		double[][] matrix = HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy());
 
 		com.jujutsu.tsne.PrincipalComponentAnalysis pca = new com.jujutsu.tsne.PrincipalComponentAnalysis();
 		double[][] output = pca.pca(matrix, targerDimension);
@@ -35,7 +35,7 @@ public class PrincipalComponentAnalysis implements DimensionReduction
 		}
 		newHier.deleteDataNames();
 
-		return new LoadedHierarchy(newHier, source.options);
+		return newHier;
 
 	}
 

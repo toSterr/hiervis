@@ -52,9 +52,9 @@ public class Tsne implements DimensionReduction
 	}
 
 	@Override
-	public LoadedHierarchy reduceHierarchy(LoadedHierarchy source)
+	public Hierarchy reduceHierarchy(LoadedHierarchy source)
 	{
-		double[][] matrix = HierarchyUtils.toMatrix(source.getMainHierarchy());
+		double[][] matrix = HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy());
 
 		TSneConfiguration config = TSneUtils.buildConfig(matrix, outputDims, initialDims, perplexity, maxIter, usePCA,
 				tetha, silent, printError);
@@ -71,6 +71,6 @@ public class Tsne implements DimensionReduction
 		}
 		newHier.deleteDataNames();
 
-		return new LoadedHierarchy(newHier, source.options);
+		return newHier;
 	}
 }

@@ -11,9 +11,9 @@ import org.apache.commons.lang3.tuple.Pair;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
-
 /**
- * Holder class for results of measures that have been computed for a {@link LoadedHierarchy}.
+ * Holder class for results of measures that have been computed for a
+ * {@link LoadedHierarchy}.
  * 
  * @author Tomasz Bachmiński
  *
@@ -21,7 +21,6 @@ import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 public class MeasureResultHolder
 {
 	private final Map<Pair<Hierarchy, MeasureTask>, Object> computedMeasureMap;
-
 
 	public MeasureResultHolder()
 	{
@@ -32,10 +31,12 @@ public class MeasureResultHolder
 	// Hierarchy measures
 
 	/**
-	 * Returns a set of measures that have been computed thus far for the currently loaded hierarchy.
+	 * Returns a set of measures that have been computed thus far for the currently
+	 * loaded hierarchy.
 	 * <p>
-	 * This method is not particularly thread-safe, as the map of measures might be updated with new entries
-	 * while you are processing the set, resulting in missed entries.
+	 * This method is not particularly thread-safe, as the map of measures might be
+	 * updated with new entries while you are processing the set, resulting in
+	 * missed entries.
 	 * </p>
 	 * <p>
 	 * For a thread-safe alternative, see {@link #forComputedMeasures(Consumer)}
@@ -45,8 +46,9 @@ public class MeasureResultHolder
 	 */
 	public Set<Map.Entry<Pair<Hierarchy, MeasureTask>, Object>> getComputedMeasures()
 	{
-		synchronized ( computedMeasureMap ) {
-			return Collections.unmodifiableMap( computedMeasureMap ).entrySet();
+		synchronized (computedMeasureMap)
+		{
+			return Collections.unmodifiableMap(computedMeasureMap).entrySet();
 		}
 	}
 
@@ -57,66 +59,71 @@ public class MeasureResultHolder
 	 *            task to look for
 	 * @return true if the task is already computed, false otherwise
 	 */
-	public boolean isMeasureComputed( Hierarchy hierarchy, MeasureTask measure )
+	public boolean isMeasureComputed(Hierarchy hierarchy, MeasureTask measure)
 	{
-		return isNodeMeasureComputed( Pair.of( hierarchy, measure ) );
+		return isNodeMeasureComputed(Pair.of(hierarchy, measure));
 	}
 
-	public boolean isNodeMeasureComputed( Pair<Hierarchy, MeasureTask> pair )
+	public boolean isNodeMeasureComputed(Pair<Hierarchy, MeasureTask> pair)
 	{
-		synchronized ( computedMeasureMap ) {
-			return computedMeasureMap.containsKey( pair );
+		synchronized (computedMeasureMap)
+		{
+			return computedMeasureMap.containsKey(pair);
 		}
 	}
 
 	/**
-	 * Performs the specified function on the set of measures that have been computed thus far for
-	 * the currently loaded hierarchy.
+	 * Performs the specified function on the set of measures that have been
+	 * computed thus far for the currently loaded hierarchy.
 	 * <p>
-	 * This method executes the function inside of a synchronized block, preventing the set from
-	 * being updated while this method is executing.
+	 * This method executes the function inside of a synchronized block, preventing
+	 * the set from being updated while this method is executing.
 	 * </p>
 	 */
-	public void forComputedMeasures( Consumer<Set<Map.Entry<Pair<Hierarchy, MeasureTask>, Object>>> function )
+	public void forComputedMeasures(Consumer<Set<Map.Entry<Pair<Hierarchy, MeasureTask>, Object>>> function)
 	{
-		synchronized ( computedMeasureMap ) {
-			function.accept( Collections.unmodifiableMap( computedMeasureMap ).entrySet() );
+		synchronized (computedMeasureMap)
+		{
+			function.accept(Collections.unmodifiableMap(computedMeasureMap).entrySet());
 		}
 	}
 
-	public Object getMeasureResultOrDefault( Hierarchy hierarchy, MeasureTask measure, Object defaultValue )
+	public Object getMeasureResultOrDefault(Hierarchy hierarchy, MeasureTask measure, Object defaultValue)
 	{
-		return getMeasureResultOrDefault( Pair.of( hierarchy, measure ), defaultValue );
+		return getMeasureResultOrDefault(Pair.of(hierarchy, measure), defaultValue);
 	}
 
-	public Object getMeasureResultOrDefault( Pair<Hierarchy, MeasureTask> pair, Object defaultValue )
+	public Object getMeasureResultOrDefault(Pair<Hierarchy, MeasureTask> pair, Object defaultValue)
 	{
-		synchronized ( computedMeasureMap ) {
-			return computedMeasureMap.getOrDefault( pair, defaultValue );
+		synchronized (computedMeasureMap)
+		{
+			return computedMeasureMap.getOrDefault(pair, defaultValue);
 		}
 	}
 
-	public Object getMeasureResult( Hierarchy hierarchy, MeasureTask measure )
+	public Object getMeasureResult(Hierarchy hierarchy, MeasureTask measure)
 	{
-		return getMeasureResult( Pair.of( hierarchy, measure ) );
+		return getMeasureResult(Pair.of(hierarchy, measure));
 	}
 
-	public Object getMeasureResult( Pair<Hierarchy, MeasureTask> pair )
+	public Object getMeasureResult(Pair<Hierarchy, MeasureTask> pair)
 	{
-		synchronized ( computedMeasureMap ) {
-			return computedMeasureMap.get( pair );
+		synchronized (computedMeasureMap)
+		{
+			return computedMeasureMap.get(pair);
 		}
 	}
 
-	protected void putMeasureResult( Hierarchy hierarchy, MeasureTask measure, Object value )
+	protected void putMeasureResult(Hierarchy hierarchy, MeasureTask measure, Object value)
 	{
-		putMeasureResult( Pair.of( hierarchy, measure ), value );
+		putMeasureResult(Pair.of(hierarchy, measure), value);
 	}
 
-	protected void putMeasureResult( Pair<Hierarchy, MeasureTask> pair, Object value )
+	protected void putMeasureResult(Pair<Hierarchy, MeasureTask> pair, Object value)
 	{
-		synchronized ( computedMeasureMap ) {
-			computedMeasureMap.put( pair, value );
+		synchronized (computedMeasureMap)
+		{
+			computedMeasureMap.put(pair, value);
 		}
 	}
 

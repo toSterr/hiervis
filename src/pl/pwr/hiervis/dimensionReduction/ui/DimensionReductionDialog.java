@@ -22,7 +22,7 @@ public abstract class DimensionReductionDialog extends JDialog
 	protected int maxOutputDimensions = 2;
 	protected int pointsAmount = 0;
 	DimensionReduction result = null;
-	
+
 	public abstract String getName();
 
 	public abstract String getSimpleName();
@@ -35,67 +35,97 @@ public abstract class DimensionReductionDialog extends JDialog
 		setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 		remodel();
 		setVisible(true);
-		
-		
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) 
-		    {
-		       result=null;
-		    }
+
+		this.addWindowListener(new java.awt.event.WindowAdapter()
+		{
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent)
+			{
+				result = null;
+			}
 		});
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		return result;
 	}
+
 	public DimensionReduction showDialog(HVContext context, int x, int y)
 	{
-		this.maxOutputDimensions = HierarchyUtils.getFirstInstance(context.getHierarchy().getMainHierarchy())
-				.getData().length;
+		this.maxOutputDimensions = HierarchyUtils
+				.getFirstInstance(context.getHierarchy().getHierarchyWraper().getOriginalHierarchy()).getData().length;
 		this.pointsAmount = context.getHierarchy().getMainHierarchy().getOverallNumberOfInstances();
 		setLocation(x, y);
 		setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 		remodel();
-		
-		
-		
+
 		setVisible(true);
-		this.addWindowListener(new java.awt.event.WindowAdapter() {
-		    @Override
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) 
-		    {
-		       result=null;
-		    }
+		this.addWindowListener(new java.awt.event.WindowAdapter()
+		{
+			@Override
+			public void windowClosing(java.awt.event.WindowEvent windowEvent)
+			{
+				result = null;
+			}
 		});
 		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 		return result;
-	
+
 	}
+
 	public DimensionReduction showDialog(HVContext context)
 	{
 		return showDialog(context, 100, 100);
 	}
-	
+
 	public abstract Class<? extends DimensionReduction> getResultClass();
-	
-	
+
 	public abstract void remodel();
-	
+
+	public abstract void setResult(ActionEvent e);
+
 	/*
-	 * Need to be manually added to constructor of child class to work
-	 *  (didn't find any solution to add keybind to this class)
-	 * */
+	 * Need to be manually added to constructor of child class to work (didn't find
+	 * any solution to add keybind to this class)
+	 */
 	public void setKeybind(JPanel contentPanel)
 	{
-		contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put( KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC" );
-		contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put( KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC" );
-		contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put( KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC" );
-		contentPanel.getActionMap().put("ESC", new AbstractAction() {
+		// escape button to cancel dialog
+		contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+				"ESC");
+		contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC");
+		contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "ESC");
+		contentPanel.getActionMap().put("ESC", new AbstractAction()
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				result=null;
+			public void actionPerformed(ActionEvent e)
+			{
+				result = null;
 				dispose();
+			}
+		});
+
+		// press "enter" or "space" to confirm dialog
+		contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+				"ENTER");
+		contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
+		contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "ENTER");
+
+		contentPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
+				"ENTER");
+		contentPanel.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "ENTER");
+		contentPanel.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0), "ENTER");
+		contentPanel.getActionMap().put("ENTER", new AbstractAction()
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				setResult(e);
 			}
 		});
 	}

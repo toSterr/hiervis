@@ -8,9 +8,10 @@ import pl.pwr.hiervis.util.HierarchyUtils;
 public class StarCoordinates implements DimensionReduction
 {
 	@Override
-	public LoadedHierarchy reduceHierarchy(LoadedHierarchy source)
+	public Hierarchy reduceHierarchy(LoadedHierarchy source)
 	{
-		double[][] matrix = HierarchyUtils.toMatrix(source.getMainHierarchy());
+		double[][] matrix = MatrixUtils
+				.deepCopy(HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy()));
 
 		MatrixUtils.linearlyTransformMatrix(matrix);
 		int dimensions = matrix[0].length;
@@ -32,7 +33,7 @@ public class StarCoordinates implements DimensionReduction
 			newHier.getRoot().getSubtreeInstances().get(i).setData(newMatrix[i]);
 		}
 		newHier.deleteDataNames();
-		return new LoadedHierarchy(newHier, source.options);
+		return newHier;
 	}
 
 }

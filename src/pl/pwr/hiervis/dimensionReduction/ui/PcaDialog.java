@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -50,7 +51,7 @@ public class PcaDialog extends DimensionReductionDialog
 
 		this.setResizable(false);
 		setBounds(100, 100, 300, 190);
-		setKeybind( (JPanel)getContentPane() );
+		setKeybind((JPanel) getContentPane());
 		getContentPane().setLayout(null);
 		{
 			JPanel buttonPane = new JPanel();
@@ -61,15 +62,7 @@ public class PcaDialog extends DimensionReductionDialog
 				JButton okButton = new JButton("OK");
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
-				okButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						result = new PrincipalComponentAnalysis((int) spinner.getValue());
-						dispose();
-					}
-				});
+				okButton.addActionListener(this::setResult);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
@@ -80,7 +73,7 @@ public class PcaDialog extends DimensionReductionDialog
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						result=null;
+						result = null;
 						dispose();
 					}
 				});
@@ -111,6 +104,13 @@ public class PcaDialog extends DimensionReductionDialog
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblNewLabel.setBounds(40, 11, 204, 33);
 		getContentPane().add(lblNewLabel);
+
+		JLabel lbl = new JLabel("");
+		lbl.setToolTipText(
+				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
+		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
+		lbl.setBounds(265, 0, 25, 25);
+		getContentPane().add(lbl);
 	}
 
 	@Override
@@ -132,7 +132,15 @@ public class PcaDialog extends DimensionReductionDialog
 	}
 
 	@Override
-	public Class<? extends DimensionReduction> getResultClass() {
+	public Class<? extends DimensionReduction> getResultClass()
+	{
 		return PrincipalComponentAnalysis.class;
+	}
+
+	@Override
+	public void setResult(ActionEvent e)
+	{
+		result = new PrincipalComponentAnalysis((int) spinner.getValue());
+		dispose();
 	}
 }

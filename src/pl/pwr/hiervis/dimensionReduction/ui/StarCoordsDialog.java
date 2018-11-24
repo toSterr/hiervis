@@ -1,16 +1,16 @@
 package pl.pwr.hiervis.dimensionReduction.ui;
 
-import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
+import javax.swing.SwingConstants;
 
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
@@ -19,7 +19,6 @@ public class StarCoordsDialog extends DimensionReductionDialog
 {
 
 	private static final long serialVersionUID = 1L;
-	private final JPanel contentPanel = new JPanel();
 
 	/**
 	 * Launch the application.
@@ -45,33 +44,17 @@ public class StarCoordsDialog extends DimensionReductionDialog
 	{
 		this.setResizable(false);
 		setBounds(100, 100, 270, 150);
-		getContentPane().setLayout(new BorderLayout());
-		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		getContentPane().add(contentPanel, BorderLayout.CENTER);
-		contentPanel.setLayout(null);
-		{
-			JLabel lblConfirmUsingStar = new JLabel("<html>Confirm using Star Coordinates <br> as dimension reduction method?\r\n");
-			lblConfirmUsingStar.setBounds(16, 21, 231, 40);
-			lblConfirmUsingStar.setFont(new Font("Tahoma", Font.PLAIN, 16));
-			contentPanel.add(lblConfirmUsingStar);
-		}
+		getContentPane().setLayout(null);
 		{
 			JPanel buttonPane = new JPanel();
+			buttonPane.setBounds(0, 78, 254, 33);
 			buttonPane.setLayout(new FlowLayout(FlowLayout.CENTER));
-			getContentPane().add(buttonPane, BorderLayout.SOUTH);
+			getContentPane().add(buttonPane);
 			{
 				JButton okButton = new JButton("OK");
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
-				okButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						result = new StarCoordinates();
-						dispose();
-					}
-				});
+				okButton.addActionListener(this::setResult);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
@@ -82,15 +65,32 @@ public class StarCoordsDialog extends DimensionReductionDialog
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						result=null;
+						result = null;
 						dispose();
 					}
 				});
 				buttonPane.add(cancelButton);
 			}
 		}
-		setKeybind( (JPanel)getContentPane() );
+		setKeybind((JPanel) getContentPane());
+
+		JLabel lbl = new JLabel("");
+		lbl.setVerticalAlignment(SwingConstants.TOP);
+		lbl.setHorizontalAlignment(SwingConstants.TRAILING);
+		lbl.setToolTipText(
+				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
+		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
+		lbl.setBounds(235, 0, 25, 25);
+		getContentPane().add(lbl);
+		{
+			JLabel lblConfirmUsingStar = new JLabel(
+					"<html>Confirm using Star Coordinates <br> as dimension reduction method?\r\n");
+			lblConfirmUsingStar.setBounds(11, 27, 231, 40);
+			getContentPane().add(lblConfirmUsingStar);
+			lblConfirmUsingStar.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
 	}
+
 	@Override
 	public String getName()
 	{
@@ -106,13 +106,21 @@ public class StarCoordsDialog extends DimensionReductionDialog
 	@Override
 	public void remodel()
 	{
-		//  No needed for a body for this dialog
+		// No needed for a body for this dialog
 
 	}
 
 	@Override
-	public Class<? extends DimensionReduction> getResultClass() {
+	public Class<? extends DimensionReduction> getResultClass()
+	{
 		return StarCoordinates.class;
+	}
+
+	@Override
+	public void setResult(ActionEvent e)
+	{
+		result = new StarCoordinates();
+		dispose();
 	}
 
 }

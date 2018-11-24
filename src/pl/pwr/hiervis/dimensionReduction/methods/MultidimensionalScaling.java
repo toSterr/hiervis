@@ -23,9 +23,11 @@ public class MultidimensionalScaling implements DimensionReduction
 	}
 
 	@Override
-	public LoadedHierarchy reduceHierarchy(LoadedHierarchy source)
+	public Hierarchy reduceHierarchy(LoadedHierarchy source)
 	{
-		double[][] input = generateDissimilarityMatrix(HierarchyUtils.toMatrix(source.getMainHierarchy()));
+
+		double[][] input = generateDissimilarityMatrix(
+				HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy()));
 
 		System.out.println("Calculating MDS");
 		double[][] output = MDSJ.classicalScaling(input); // apply MDS
@@ -41,7 +43,7 @@ public class MultidimensionalScaling implements DimensionReduction
 		}
 		newHier.deleteDataNames();
 
-		return new LoadedHierarchy(newHier, source.options);
+		return newHier;
 
 	}
 

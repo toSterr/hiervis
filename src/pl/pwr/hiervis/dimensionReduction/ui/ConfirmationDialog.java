@@ -18,25 +18,9 @@ public class ConfirmationDialog extends JDialog
 	private static final long serialVersionUID = 1L;
 	private JButton okButton;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args)
+	public void showDialog(int x, int y)
 	{
-		try
-		{
-			ConfirmationDialog dialog = new ConfirmationDialog();
-			dialog.showDialog();
-
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	public void showDialog()
-	{
+		setLocation(x, y);
 		setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 		setVisible(true);
 		setLocationRelativeTo(null);

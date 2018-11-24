@@ -9,6 +9,7 @@ import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
@@ -65,7 +66,7 @@ public class MdsDialog extends DimensionReductionDialog
 	public MdsDialog()
 	{
 		this.setResizable(false);
-		setKeybind( (JPanel)getContentPane() );
+		setKeybind((JPanel) getContentPane());
 		setTitle("Multidimensional Scaling");
 		setBounds(100, 100, 450, 272);
 
@@ -79,20 +80,7 @@ public class MdsDialog extends DimensionReductionDialog
 			JButton okButton = new JButton("OK");
 			okButton.setActionCommand("OK");
 			buttonPane.add(okButton);
-			okButton.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					if (list.getSelectedIndex() != 2)
-						result = new MultidimensionalScaling(distanceMeasures[list.getSelectedIndex()]);
-					else
-					{
-						result = new MultidimensionalScaling(new Minkowski((double) textField.getValue()));
-					}
-					dispose();
-				}
-			});
+			okButton.addActionListener(this::setResult);
 			getRootPane().setDefaultButton(okButton);
 		}
 
@@ -105,7 +93,7 @@ public class MdsDialog extends DimensionReductionDialog
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					result=null;
+					result = null;
 					dispose();
 				}
 			});
@@ -190,6 +178,14 @@ public class MdsDialog extends DimensionReductionDialog
 		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		lblNewLabel_1.setBounds(274, 152, 117, 36);
 		getContentPane().add(lblNewLabel_1);
+
+		JLabel lbl = new JLabel("");
+		lbl.setToolTipText(
+				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
+		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
+		lbl.setBounds(415, 0, 25, 25);
+
+		getContentPane().add(lbl);
 		textField.addPropertyChangeListener("value", new propertyChanger());
 		textField.setVisible(false);
 		lblNewLabel_1.setVisible(false);
@@ -253,8 +249,20 @@ public class MdsDialog extends DimensionReductionDialog
 	}
 
 	@Override
-	public Class<? extends DimensionReduction> getResultClass() 
+	public Class<? extends DimensionReduction> getResultClass()
 	{
 		return MultidimensionalScaling.class;
+	}
+
+	@Override
+	public void setResult(ActionEvent e)
+	{
+		if (list.getSelectedIndex() != 2)
+			result = new MultidimensionalScaling(distanceMeasures[list.getSelectedIndex()]);
+		else
+		{
+			result = new MultidimensionalScaling(new Minkowski((double) textField.getValue()));
+		}
+		dispose();
 	}
 }

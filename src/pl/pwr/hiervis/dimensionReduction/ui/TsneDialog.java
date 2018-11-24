@@ -8,6 +8,7 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -64,7 +65,7 @@ public class TsneDialog extends DimensionReductionDialog
 	{
 		this.setResizable(false);
 		setBounds(100, 100, 332, 455);
-		setKeybind( (JPanel)getContentPane() );
+		setKeybind((JPanel) getContentPane());
 		getContentPane().setLayout(null);
 		{
 			JPanel buttonPane = new JPanel();
@@ -75,17 +76,7 @@ public class TsneDialog extends DimensionReductionDialog
 				JButton okButton = new JButton("OK");
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
-				okButton.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent e)
-					{
-						result = new Tsne(chckbxUsePca.isSelected(), (int) spinner.getValue(), 2,
-								(int) spinner_iter.getValue(), (double) spinner_per.getValue(),
-								chckbxUsePca.isSelected(), (double) spinner_tetha.getValue(), true, true);
-						dispose();
-					}
-				});
+				okButton.addActionListener(this::setResult);
 				getRootPane().setDefaultButton(okButton);
 			}
 			{
@@ -96,7 +87,7 @@ public class TsneDialog extends DimensionReductionDialog
 					@Override
 					public void actionPerformed(ActionEvent e)
 					{
-						result=null;
+						result = null;
 						dispose();
 					}
 				});
@@ -170,23 +161,15 @@ public class TsneDialog extends DimensionReductionDialog
 			lblPerplexity = new JLabel("Perplexity");
 		}
 		GroupLayout gl_perplexityPanel = new GroupLayout(perplexityPanel);
-		gl_perplexityPanel.setHorizontalGroup(
-			gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_perplexityPanel.createSequentialGroup()
-					.addGap(5)
-					.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(lblPerplexity)
-					.addGap(72))
-		);
-		gl_perplexityPanel.setVerticalGroup(
-			gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_perplexityPanel.createSequentialGroup()
-					.addGap(5)
-					.addGroup(gl_perplexityPanel.createParallelGroup(Alignment.BASELINE)
-						.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-						.addComponent(lblPerplexity)))
-		);
+		gl_perplexityPanel.setHorizontalGroup(gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_perplexityPanel.createSequentialGroup().addGap(5)
+						.addComponent(spinner_per, GroupLayout.PREFERRED_SIZE, 63, GroupLayout.PREFERRED_SIZE)
+						.addPreferredGap(ComponentPlacement.RELATED).addComponent(lblPerplexity).addGap(72)));
+		gl_perplexityPanel.setVerticalGroup(gl_perplexityPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_perplexityPanel.createSequentialGroup().addGap(5)
+						.addGroup(gl_perplexityPanel.createParallelGroup(Alignment.BASELINE).addComponent(spinner_per,
+								GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+								.addComponent(lblPerplexity))));
 		perplexityPanel.setLayout(gl_perplexityPanel);
 		perplexityPanel.addMouseWheelListener(new spin(spinner_per));
 		{
@@ -237,7 +220,14 @@ public class TsneDialog extends DimensionReductionDialog
 
 			pcaPanel.addMouseWheelListener(new spin(spinner));
 		}
-		
+
+		JLabel lbl = new JLabel("");
+		lbl.setToolTipText(
+				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
+		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
+		lbl.setBounds(300, 0, 25, 25);
+		getContentPane().add(lbl);
+
 	}
 
 	@Override
@@ -256,10 +246,10 @@ public class TsneDialog extends DimensionReductionDialog
 	public void remodel()
 	{
 		spinner.setModel(new SpinnerNumberModel(2, 2, maxOutputDimensions, 1));
-		double min=0.5;
-		double max=Math.round((pointsAmount - 1) / 3);
-		double value=Math.max(min, Math.min(20.0, max )) ;
-		double stepSize=Math.max(1, Math.round((max-min)/30) );
+		double min = 0.5;
+		double max = Math.round((pointsAmount - 1) / 3);
+		double value = Math.max(min, Math.min(20.0, max));
+		double stepSize = Math.max(1, Math.round((max - min) / 30));
 		spinner_per.setModel(new SpinnerNumberModel(value, min, max, stepSize));
 
 	}
@@ -312,11 +302,22 @@ public class TsneDialog extends DimensionReductionDialog
 			}
 
 		}
-		
+
 	}
 
 	@Override
-	public Class<? extends DimensionReduction> getResultClass() {
+	public Class<? extends DimensionReduction> getResultClass()
+	{
 		return Tsne.class;
+	}
+
+	@Override
+	public void setResult(ActionEvent e)
+	{
+		result = new Tsne(chckbxUsePca.isSelected(), (int) spinner.getValue(), 2, (int) spinner_iter.getValue(),
+				(double) spinner_per.getValue(), chckbxUsePca.isSelected(), (double) spinner_tetha.getValue(), true,
+				true);
+		dispose();
+
 	}
 }
