@@ -99,9 +99,4 @@ public class HierarchyWraper
 		}
 	}
 
-	public void setHierarchy(Integer index)
-	{
-		// TODO Auto-generated method stub
-
-	}
 }

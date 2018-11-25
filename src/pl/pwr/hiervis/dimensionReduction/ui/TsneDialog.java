@@ -8,7 +8,6 @@ import java.awt.event.MouseWheelListener;
 
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -21,6 +20,7 @@ import javax.swing.event.ChangeListener;
 
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.Tsne;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.HelpIcon;
 
 public class TsneDialog extends DimensionReductionDialog
 {
@@ -112,13 +112,13 @@ public class TsneDialog extends DimensionReductionDialog
 
 					if (((JCheckBox) e.getSource()).isSelected())
 					{
-						spinner.setVisible(true);
-						lblPcaInitialDimensions.setVisible(true);
+						spinner.setEnabled(true);
+						lblPcaInitialDimensions.setEnabled(true);
 					}
 					else
 					{
-						spinner.setVisible(false);
-						lblPcaInitialDimensions.setVisible(false);
+						spinner.setEnabled(false);
+						lblPcaInitialDimensions.setEnabled(false);
 					}
 
 				}
@@ -201,7 +201,7 @@ public class TsneDialog extends DimensionReductionDialog
 			getContentPane().add(pcaPanel);
 
 			spinner = new JSpinner();
-			spinner.setVisible(false);
+			spinner.setEnabled(false);
 
 			spinner.setModel(new SpinnerNumberModel(2, 2, maxOutputDimensions, 1));
 
@@ -216,16 +216,12 @@ public class TsneDialog extends DimensionReductionDialog
 							GroupLayout.PREFERRED_SIZE, 21, GroupLayout.PREFERRED_SIZE))
 					.addGroup(gl_pcaPanel.createSequentialGroup().addGap(8).addComponent(lblPcaInitialDimensions)));
 			pcaPanel.setLayout(gl_pcaPanel);
-			lblPcaInitialDimensions.setVisible(false);
+			lblPcaInitialDimensions.setEnabled(false);
 
 			pcaPanel.addMouseWheelListener(new spin(spinner));
 		}
 
-		JLabel lbl = new JLabel("");
-		lbl.setToolTipText(
-				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
-		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
-		lbl.setBounds(300, 0, 25, 25);
+		JLabel lbl = new HelpIcon(300, 0);
 		getContentPane().add(lbl);
 
 	}

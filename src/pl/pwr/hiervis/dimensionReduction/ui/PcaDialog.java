@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -16,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.PrincipalComponentAnalysis;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.HelpIcon;
 
 public class PcaDialog extends DimensionReductionDialog
 {
@@ -105,11 +105,7 @@ public class PcaDialog extends DimensionReductionDialog
 		lblNewLabel.setBounds(40, 11, 204, 33);
 		getContentPane().add(lblNewLabel);
 
-		JLabel lbl = new JLabel("");
-		lbl.setToolTipText(
-				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
-		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
-		lbl.setBounds(265, 0, 25, 25);
+		JLabel lbl = new HelpIcon(265, 0);
 		getContentPane().add(lbl);
 	}
 

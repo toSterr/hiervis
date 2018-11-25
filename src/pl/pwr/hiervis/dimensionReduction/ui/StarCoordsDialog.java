@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -14,6 +13,7 @@ import javax.swing.SwingConstants;
 
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.HelpIcon;
 
 public class StarCoordsDialog extends DimensionReductionDialog
 {
@@ -74,14 +74,11 @@ public class StarCoordsDialog extends DimensionReductionDialog
 		}
 		setKeybind((JPanel) getContentPane());
 
-		JLabel lbl = new JLabel("");
+		JLabel lbl = new HelpIcon(235, 0);
 		lbl.setVerticalAlignment(SwingConstants.TOP);
 		lbl.setHorizontalAlignment(SwingConstants.TRAILING);
-		lbl.setToolTipText(
-				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
-		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
-		lbl.setBounds(235, 0, 25, 25);
 		getContentPane().add(lbl);
+
 		{
 			JLabel lblConfirmUsingStar = new JLabel(
 					"<html>Confirm using Star Coordinates <br> as dimension reduction method?\r\n");

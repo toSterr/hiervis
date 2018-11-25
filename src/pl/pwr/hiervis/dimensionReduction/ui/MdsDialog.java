@@ -4,12 +4,13 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.text.NumberFormat;
 import java.text.ParseException;
 
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
@@ -30,6 +31,7 @@ import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Manhattan;
 import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Minkowski;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.methods.MultidimensionalScaling;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.HelpIcon;
 
 public class MdsDialog extends DimensionReductionDialog
 {
@@ -179,17 +181,25 @@ public class MdsDialog extends DimensionReductionDialog
 		lblNewLabel_1.setBounds(274, 152, 117, 36);
 		getContentPane().add(lblNewLabel_1);
 
-		JLabel lbl = new JLabel("");
-		lbl.setToolTipText(
-				"<html> Controls: <br>\r\nESC      - Closes the dialog window <br>\r\nENTER - Confirms all the choises and closes window<br>\r\n&#9(same behaviour as presing \"OK\" button)<br>\r\nSPACE  - Same as ENTER<br>\r\nMOUSE SCROL - Changes the values of spines if current <br>\r\nCTRL + MOUSE SCROLL - the change steep value is halved <br>\r\nALT +  MOUSE SCROLL - the change steep value is multiplyed by 5");
-		lbl.setIcon(new ImageIcon(MdsDialog.class.getResource("/pl/pwr/hiervis/dimensionReduction/ui/hl25.png")));
-		lbl.setBounds(415, 0, 25, 25);
-
+		JLabel lbl = new HelpIcon(415, 0);
 		getContentPane().add(lbl);
-		textField.addPropertyChangeListener("value", new propertyChanger());
-		textField.setVisible(false);
-		lblNewLabel_1.setVisible(false);
 
+		textField.addPropertyChangeListener("value", new propertyChanger());
+		textField.setEnabled(false);
+		lblNewLabel_1.setEnabled(false);
+
+		this.addMouseWheelListener(new MouseWheelListener()
+		{
+
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent e)
+			{
+				if (list.getSelectedIndex() + e.getWheelRotation() >= 0
+						&& list.getSelectedIndex() + e.getWheelRotation() <= list.getModel().getSize())
+					list.setSelectedIndex(list.getSelectedIndex() + e.getWheelRotation());
+				;
+			}
+		});
 	}
 
 	class propertyChanger implements PropertyChangeListener
@@ -218,13 +228,13 @@ public class MdsDialog extends DimensionReductionDialog
 			{
 				if (lsm.isSelectedIndex(2))
 				{
-					textField.setVisible(true);
-					lblNewLabel_1.setVisible(true);
+					textField.setEnabled(true);
+					lblNewLabel_1.setEnabled(true);
 				}
 				else
 				{
-					textField.setVisible(false);
-					lblNewLabel_1.setVisible(false);
+					textField.setEnabled(false);
+					lblNewLabel_1.setEnabled(false);
 				}
 			}
 		}

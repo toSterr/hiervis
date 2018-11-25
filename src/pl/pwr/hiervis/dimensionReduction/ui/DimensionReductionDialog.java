@@ -9,7 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
-import pl.pwr.hiervis.core.HVContext;
+import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.util.HierarchyUtils;
 
@@ -27,32 +27,10 @@ public abstract class DimensionReductionDialog extends JDialog
 
 	public abstract String getSimpleName();
 
-	public DimensionReduction showDialog(int maxOutputDimensions, int pointsAmount)
+	public DimensionReduction showDialog(int inputDataDimensions, int pointsAmount, int x, int y)
 	{
-		this.maxOutputDimensions = maxOutputDimensions;
+		this.maxOutputDimensions = inputDataDimensions;
 		this.pointsAmount = pointsAmount;
-		setLocation(100, 100);
-		setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
-		remodel();
-		setVisible(true);
-
-		this.addWindowListener(new java.awt.event.WindowAdapter()
-		{
-			@Override
-			public void windowClosing(java.awt.event.WindowEvent windowEvent)
-			{
-				result = null;
-			}
-		});
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		return result;
-	}
-
-	public DimensionReduction showDialog(HVContext context, int x, int y)
-	{
-		this.maxOutputDimensions = HierarchyUtils
-				.getFirstInstance(context.getHierarchy().getHierarchyWraper().getOriginalHierarchy()).getData().length;
-		this.pointsAmount = context.getHierarchy().getMainHierarchy().getOverallNumberOfInstances();
 		setLocation(x, y);
 		setModalityType(java.awt.Dialog.ModalityType.APPLICATION_MODAL);
 		remodel();
@@ -71,9 +49,21 @@ public abstract class DimensionReductionDialog extends JDialog
 
 	}
 
-	public DimensionReduction showDialog(HVContext context)
+	public DimensionReduction showDialog(int inputDataDimensions, int pointsAmount)
 	{
-		return showDialog(context, 100, 100);
+		return showDialog(inputDataDimensions, pointsAmount, 100, 100);
+	}
+
+	public DimensionReduction showDialog(Hierarchy hierarchy)
+	{
+		return showDialog(HierarchyUtils.getFirstInstance(hierarchy).getData().length,
+				hierarchy.getOverallNumberOfInstances(), 100, 100);
+	}
+
+	public DimensionReduction showDialog(Hierarchy hierarchy, int x, int y)
+	{
+		return showDialog(HierarchyUtils.getFirstInstance(hierarchy).getData().length,
+				hierarchy.getOverallNumberOfInstances(), x, y);
 	}
 
 	public abstract Class<? extends DimensionReduction> getResultClass();

@@ -2,7 +2,6 @@ package pl.pwr.hiervis.ui.jakubTestuje;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.event.KeyEvent;
 import java.io.File;
 
 import javax.swing.JFrame;
@@ -27,10 +26,6 @@ import org.flexdock.view.Viewport;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.core.HVConfig;
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunner;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
-import pl.pwr.hiervis.dimensionReduction.ui.ConfirmationDialog;
-import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionDialog;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionWrapInstanceVisualizationsFrame;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.ui.VisualizerFrame;
@@ -54,11 +49,9 @@ public class DockerUI extends JFrame implements DockingConstants
 	private JMenuItem mntmSaveFile;
 	private JMenuItem mntmFlatten;
 	private JMenuItem mntmCut;
-	private JMenuItem mntmReduce[];
 	private View viewHier;
 	private View viewVis;
 	private View viewStats;
-	private DimensionReductionRunner dimensionReductionRunner;
 
 	public static void main(String[] args)
 	{
@@ -188,7 +181,6 @@ public class DockerUI extends JFrame implements DockingConstants
 
 		createFileMenu(menuBar);
 		createEditMenu(menuBar);
-		createDimRedMenu(menuBar);
 
 	}
 
@@ -222,47 +214,6 @@ public class DockerUI extends JFrame implements DockingConstants
 		mntmConfig.setMnemonic('C');
 		mntmConfig.addActionListener(e -> context.getHierarchyFrame().openConfigDialog());
 		mnFile.add(mntmConfig);
-	}
-
-	// TODO delete this and all references to this menu bar
-	private void createDimRedMenu(JMenuBar menuBar)
-	{
-		JMenu mnRedu = new JMenu("Dimension Reduction");
-		mnRedu.setMnemonic(KeyEvent.VK_R);
-		menuBar.add(mnRedu);
-
-		DimensionReductionDialog dimReductionDialogs[] = context.getDimensionReductionMenager().getDialogs();
-		mntmReduce = new JMenuItem[dimReductionDialogs.length];
-
-		ConfirmationDialog confirmationDialog = new ConfirmationDialog();
-
-		for (int i = 0; i < 0; i++)
-		{
-			final int j = i;
-			mntmReduce[i] = new JMenuItem(dimReductionDialogs[j].getName());
-
-			mntmReduce[i].addActionListener(e ->
-			{
-				DimensionReduction dimensionReduction = dimReductionDialogs[j].showDialog(context);
-				if (dimensionReduction != null)
-				{
-					try
-					{
-						dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
-						dimensionReductionRunner.start();
-						confirmationDialog.showDialog(100, 100);
-						context.dimensionReductionCalculating.broadcast(dimensionReduction);
-					}
-					catch (Exception exception)
-					{
-						log.trace("Exception when computing dimension reduction :" + exception);
-					}
-				}
-
-			});
-			mntmReduce[i].setEnabled(false);
-			mnRedu.add(mntmReduce[i]);
-		}
 	}
 
 	private void createEditMenu(JMenuBar menuBar)
@@ -303,12 +254,6 @@ public class DockerUI extends JFrame implements DockingConstants
 		mntmFlatten.setEnabled(false);
 		mntmCut.setEnabled(false);
 
-		for (JMenuItem item : mntmReduce)
-		{
-			if (item != null)
-				item.setEnabled(false);
-		}
-
 	}
 
 	private void onHierarchyChanged(LoadedHierarchy newHierarchy)
@@ -322,11 +267,6 @@ public class DockerUI extends JFrame implements DockingConstants
 			mntmSaveFile.setEnabled(true);
 			mntmFlatten.setEnabled(true);
 			mntmCut.setEnabled(true);
-			for (JMenuItem item : mntmReduce)
-			{
-				if (item != null)
-					item.setEnabled(true);
-			}
 		}
 	}
 

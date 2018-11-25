@@ -6,6 +6,8 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.util.function.Consumer;
 
 import javax.swing.Box;
@@ -20,6 +22,7 @@ import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunner;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.ui.elements.LoadingIcon;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
@@ -60,9 +63,12 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 	private JButton forceBtn;
 	private Component horizontalStrut;
 	private ConfirmationDialog confirmationDialog;
+	private LoadingIcon loadingIcon;
+
 	/**
 	 * Launch the application.
 	 */
+
 	/*
 	 * public static void main(String[] args) {
 	 * SwingUtility.setPlaf("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -80,14 +86,13 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 	public DimensionReductionWrapInstanceVisualizationsFrame(HVContext context)
 	{
 		this.context = context;
+
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-
-		contentPane.add(this.context.getInstanceFrame().getContentPane(), BorderLayout.CENTER);
 
 		confirmationDialog = new ConfirmationDialog();
 
@@ -137,7 +142,40 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 			}
 		});
 		forceBtn.setFocusable(false);
+
+		loadingIcon = new LoadingIcon();
+		loadingIcon.hideIcon();
+		contentPane.add(loadingIcon);
+
+		contentPane.add(this.context.getInstanceFrame().getContentPane(), BorderLayout.CENTER);
 		forceBtn.addActionListener(this::forceReductionSelect);
+
+		getContentPane().addComponentListener(new ComponentListener()
+		{
+			@Override
+			public void componentShown(ComponentEvent e)
+			{
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e)
+			{
+				if (loadingIcon.isVisible())
+				{
+					displayLoadingIcon();
+				}
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e)
+			{
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e)
+			{
+			}
+		});
 	}
 
 	private void forceReductionSelect(ActionEvent e)
@@ -153,26 +191,23 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 			int x = (int) getContentPane().getLocationOnScreen().getX();
 			int y = (int) getContentPane().getLocationOnScreen().getY();
 			DimensionReduction dimensionReduction = context.getDimensionReductionMenager().showDialog(index - 1,
-					context, x, y);
+					context.getHierarchy().getMainHierarchy(), x, y);
 			if (dimensionReduction == null)
 			{
 
 			}
 			else
 			{
-				confirmationDialog.showDialog(x, y);
-				context.dimensionReductionCalculating.broadcast(dimensionReduction);
-				context.getDimensionReductionMenager().addToQue(context.getHierarchy(), dimensionReduction.getClass());
-
-				dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
-				dimensionReductionRunner.start();
+				afterConfirmedReduction(context.getHierarchy(), dimensionReduction, x, y);
 			}
 		}
 
 	}
 
-	private void onDimensionReductionSelected(Integer index)
+	private void onDimensionReductionSelected(int index)
 	{
+		int x = (int) getContentPane().getLocationOnScreen().getX();
+		int y = (int) getContentPane().getLocationOnScreen().getY();
 
 		if (context.getHierarchy().getHierarchyWraper().getHierarchyWithoutChange(index) == null)
 		{
@@ -180,10 +215,9 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 			// context.getDimensionReductionMenager().getDialogs()[index -
 			// 1].getResultClass()))
 			{
-				int x = (int) getContentPane().getLocationOnScreen().getX();
-				int y = (int) getContentPane().getLocationOnScreen().getY();
 				DimensionReduction dimensionReduction = context.getDimensionReductionMenager().showDialog(index - 1,
-						context, x, y);
+						context.getHierarchy().getMainHierarchy(), x, y);
+
 				if (dimensionReduction == null)
 				{
 					if (context.getHierarchy().getHierarchyWraper()
@@ -201,13 +235,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 				}
 				else
 				{
-					confirmationDialog.showDialog(x, y);
-					context.dimensionReductionCalculating.broadcast(dimensionReduction);
-					context.getDimensionReductionMenager().addToQue(context.getHierarchy(),
-							dimensionReduction.getClass());
-
-					dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
-					dimensionReductionRunner.start();
+					afterConfirmedReduction(context.getHierarchy(), dimensionReduction, x, y);
 				}
 			}
 			// else
@@ -220,6 +248,19 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 			afterSelection(index);
 		}
 
+	}
+
+	private void afterConfirmedReduction(LoadedHierarchy loadedHierarchy, DimensionReduction dimensionReduction, int x,
+			int y)
+	{
+		displayLoadingIcon();
+		confirmationDialog.showDialog(x, y);
+		context.dimensionReductionCalculating.broadcast(dimensionReduction);
+
+		context.getDimensionReductionMenager().addToQueue(loadedHierarchy, dimensionReduction.getClass());
+
+		dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
+		dimensionReductionRunner.start();
 	}
 
 	private void afterSelection(int index)
@@ -250,7 +291,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 
 	private void onDimensionReductionCalculated(CalculatedDimensionReduction reduction)
 	{
-		context.getDimensionReductionMenager().removeFromQue(reduction.inputLoadedHierarchy,
+		context.getDimensionReductionMenager().removeFromQueue(reduction.inputLoadedHierarchy,
 				reduction.dimensionReduction.getClass());
 
 		if (reduction.inputLoadedHierarchy == context.getHierarchy())
@@ -292,5 +333,39 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame
 	{
 		forceBtn.setEnabled(true);
 		forceBtn.setVisible(true);
+	}
+
+	// TODO create a handler for hiding after it is not more needed and difrent
+	// handler for display depending on if specific reduction is calculating
+	private void displayLoadingIcon()
+	{
+		Component component = context.getInstanceFrame().getContentPane().getComponent(2);
+		double x = component.getX();
+		double y = component.getY();
+		double width = component.getWidth();
+		double height = component.getHeight();
+		double x1 = getContentPane().getComponent(2).getX();
+		double y1 = getContentPane().getComponent(2).getY();
+		double posX = 0;
+		double posY = 0;
+		if (width < 210)
+		{
+			posX = x + x1 + 10;
+		}
+		else
+		{
+			posX = x + x1 + width / 2 - 100 + 10;
+		}
+		if (height < 210)
+		{
+			posY = y + y1 + 10;
+		}
+		else
+		{
+			posY = y + y1 + height / 2 - 100 + 10;
+		}
+
+		loadingIcon.showIcon((int) (posX), (int) (posY));
+
 	}
 }
