@@ -5,35 +5,33 @@ import java.io.File;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-
 /**
- * File chooser with added confirmation dialog when overwriting an existing file.
+ * File chooser with added confirmation dialog when overwriting an existing
+ * file.
  */
-public class JFileChooserEx extends JFileChooser
-{
-	@Override
-	public void approveSelection()
-	{
-		File f = getSelectedFile();
+public class JFileChooserEx extends JFileChooser {
+    /**
+    * 
+    */
+    private static final long serialVersionUID = 975500250641621967L;
 
-		if ( f.exists() && getDialogType() == SAVE_DIALOG ) {
-			int result = JOptionPane.showConfirmDialog(
-				this,
-				String.format(
-					"File %s already exists. Do you want to overwrite it?",
-					f.getName()
-				),
-				"Existing file", JOptionPane.YES_NO_OPTION
-			);
-			switch ( result ) {
-				case JOptionPane.YES_OPTION:
-					super.approveSelection();
-				case JOptionPane.NO_OPTION:
-				case JOptionPane.CLOSED_OPTION:
-					return;
-			}
-		}
+    @Override
+    public void approveSelection() {
+	File f = getSelectedFile();
 
+	if (f.exists() && getDialogType() == SAVE_DIALOG) {
+	    int result = JOptionPane.showConfirmDialog(this,
+		    String.format("File %s already exists. Do you want to overwrite it?", f.getName()), "Existing file",
+		    JOptionPane.YES_NO_OPTION);
+	    switch (result) {
+	    case JOptionPane.YES_OPTION:
 		super.approveSelection();
+	    case JOptionPane.NO_OPTION:
+	    case JOptionPane.CLOSED_OPTION:
+		return;
+	    }
 	}
+
+	super.approveSelection();
+    }
 }
