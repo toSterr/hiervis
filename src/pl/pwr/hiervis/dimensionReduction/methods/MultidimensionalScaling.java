@@ -8,60 +8,52 @@ import pl.pwr.hiervis.dimensionReduction.distanceMeasures.Euclidean;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.util.HierarchyUtils;
 
-public class MultidimensionalScaling implements DimensionReduction
-{
-	private DistanceMeasure distanceMeasure;
+public class MultidimensionalScaling extends DimensionReduction {
+    private DistanceMeasure distanceMeasure;
 
-	public MultidimensionalScaling()
-	{
-		distanceMeasure = new Euclidean();
+    public MultidimensionalScaling() {
+	distanceMeasure = new Euclidean();
+    }
+
+    public MultidimensionalScaling(DistanceMeasure distanceMeasure) {
+	this.distanceMeasure = distanceMeasure;
+    }
+
+    @Override
+    public Hierarchy reduceHierarchy(LoadedHierarchy source) {
+
+	double[][] input = generateDissimilarityMatrix(
+		HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy()));
+
+	System.out.println("Calculating MDS");
+	double[][] output = MDSJ.classicalScaling(input); // apply MDS
+	System.out.println("Finished Calculating MDS");
+
+	output = MatrixUtils.TransposeMatrix(output);
+
+	Hierarchy newHier = HierarchyUtils.clone(source.getMainHierarchy(), true, null);
+
+	for (int i = 0; i < newHier.getOverallNumberOfInstances(); i++) {
+	    newHier.getRoot().getSubtreeInstances().get(i).setData(output[i]);
 	}
+	newHier.deleteDataNames();
 
-	public MultidimensionalScaling(DistanceMeasure distanceMeasure)
-	{
-		this.distanceMeasure = distanceMeasure;
+	return newHier;
+
+    }
+
+    private double[][] generateDissimilarityMatrix(double[][] matrix) {
+	System.out.println("Calculating Dissimilarity Matrix");
+
+	double[][] output = new double[matrix.length][matrix.length];
+
+	for (int i = 0; i < matrix.length; i++) {
+	    for (int j = i + 1; j < matrix.length; j++) {
+		output[i][j] = distanceMeasure.getDistance(matrix[i], matrix[j]);
+		output[j][i] = output[i][j];
+	    }
 	}
-
-	@Override
-	public Hierarchy reduceHierarchy(LoadedHierarchy source)
-	{
-
-		double[][] input = generateDissimilarityMatrix(
-				HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy()));
-
-		System.out.println("Calculating MDS");
-		double[][] output = MDSJ.classicalScaling(input); // apply MDS
-		System.out.println("Finished Calculating MDS");
-
-		output = MatrixUtils.TransposeMatrix(output);
-
-		Hierarchy newHier = HierarchyUtils.clone(source.getMainHierarchy(), true, null);
-
-		for (int i = 0; i < newHier.getOverallNumberOfInstances(); i++)
-		{
-			newHier.getRoot().getSubtreeInstances().get(i).setData(output[i]);
-		}
-		newHier.deleteDataNames();
-
-		return newHier;
-
-	}
-
-	private double[][] generateDissimilarityMatrix(double[][] matrix)
-	{
-		System.out.println("Calculating Dissimilarity Matrix");
-
-		double[][] output = new double[matrix.length][matrix.length];
-
-		for (int i = 0; i < matrix.length; i++)
-		{
-			for (int j = i + 1; j < matrix.length; j++)
-			{
-				output[i][j] = distanceMeasure.getDistance(matrix[i], matrix[j]);
-				output[j][i] = output[i][j];
-			}
-		}
-		System.out.println("Finishing Calculating Dissimilarity Matrix");
-		return output;
-	}
+	System.out.println("Finishing Calculating Dissimilarity Matrix");
+	return output;
+    }
 }
