@@ -1,6 +1,6 @@
 package pl.pwr.hiervis.hierarchy;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import org.junit.Test;
 

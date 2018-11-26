@@ -1,17 +1,15 @@
 package pl.pwr.hiervis.hierarchy;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Test;
 
-import basic_hierarchy.common.HierarchyBuilder;
-import basic_hierarchy.implementation.BasicHierarchy;
 import basic_hierarchy.implementation.BasicNode;
 import basic_hierarchy.interfaces.Hierarchy;
 import basic_hierarchy.interfaces.Node;
 import basic_hierarchy.test.TestCommon;
-import basic_hierarchy.test.implementation.HierarchyBuilderTest;
 import pl.pwr.hiervis.core.HVConfig;
 
 public class LoadedHierarchyTest {

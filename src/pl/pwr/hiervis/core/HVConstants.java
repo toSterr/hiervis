@@ -1,6 +1,7 @@
 package pl.pwr.hiervis.core;
 
 import prefuse.Visualization;
+import prefuse.visual.VisualItem;
 
 
 public class HVConstants

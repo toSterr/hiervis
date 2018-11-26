@@ -1,6 +1,6 @@
 package pl.pwr.hiervis.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;

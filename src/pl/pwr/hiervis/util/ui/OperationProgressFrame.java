@@ -12,11 +12,10 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import pl.pwr.hiervis.util.SwingUIUtils;
-
-import javax.swing.SwingConstants;
 
 
 /**
