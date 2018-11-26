@@ -1,59 +1,112 @@
 package pl.pwr.hiervis.dimensionReduction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertSame;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import basic_hierarchy.interfaces.Hierarchy;
+import basic_hierarchy.test.TestCommon;
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.methods.MultidimensionalScaling;
+import pl.pwr.hiervis.dimensionReduction.methods.StarCoordinates;
+import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 
 public class HierarchyWraperTest {
 
+    Hierarchy hierarchy;
+    HierarchyWraper hierachyWraper;
+
+    @Before
+    public void initialize() {
+	hierarchy = TestCommon.getFourGroupsHierarchy();
+	hierachyWraper = new HierarchyWraper(hierarchy);
+    }
+
     @Test
     public void testHierarchyWraperHierarchy() {
-	fail("Not yet implemented");
+	assertNotSame(hierachyWraper, null);
+	assertEquals(hierachyWraper.hierarchy, hierarchy);
     }
 
     @Test
     public void testHierarchyWraper() {
-	fail("Not yet implemented");
+	hierachyWraper = null;
+	assertEquals(hierachyWraper, null);
+	hierachyWraper = new HierarchyWraper();
+	assertNotSame(hierachyWraper, null);
+	assertEquals(hierachyWraper.hierarchy, null);
     }
 
     @Test
     public void testGetHierarchyWithoutChange() {
-	fail("Not yet implemented");
+	assertEquals(hierarchy, hierachyWraper.getHierarchyWithoutChange(0));
+	assertEquals(null, hierachyWraper.getHierarchyWithoutChange(1));
+	assertEquals(null, hierachyWraper.getHierarchyWithoutChange(10));
     }
 
     @Test
     public void testSetHierarchy() {
-	fail("Not yet implemented");
+	assertEquals(hierarchy, hierachyWraper.hierarchy);
+	hierachyWraper.hierarchy = null;
+	assertEquals(null, hierachyWraper.hierarchy);
+	hierachyWraper.getReducedHierarchy()[0] = hierarchy;
+	hierachyWraper.setHierarchy(1);
+	assertEquals(hierarchy, hierachyWraper.hierarchy);
+
+	hierachyWraper.hierarchy = null;
+	assertEquals(null, hierachyWraper.hierarchy);
+	hierachyWraper.setHierarchy(0);
+	assertEquals(hierarchy, hierachyWraper.hierarchy);
+	hierachyWraper.setHierarchy(-1);
+	assertEquals(hierarchy, hierachyWraper.hierarchy);
+
+	hierachyWraper.setHierarchy(10);
+	assertEquals(hierarchy, hierachyWraper.hierarchy);
     }
 
     @Test
     public void testGetOriginalHierarchy() {
-	fail("Not yet implemented");
+	assertEquals(hierarchy, hierachyWraper.getOriginalHierarchy());
     }
 
     @Test
     public void testGetReducedHierarchy() {
-	fail("Not yet implemented");
+	assertNotSame(null, hierachyWraper.getReducedHierarchy());
     }
 
     @Test
     public void testSetReducedHierarchy() {
-	fail("Not yet implemented");
+	hierachyWraper.setReducedHierarchy(null);
+	assertSame(null, hierachyWraper.getReducedHierarchy());
+
     }
 
     @Test
     public void testGetReducedHierarchyDimensionReduction() {
-	fail("Not yet implemented");
+
+	hierachyWraper.getReducedHierarchy()[0] = hierarchy;
+	assertEquals(hierarchy, hierachyWraper.getReducedHierarchy(new MultidimensionalScaling()));
+	// assertEquals(null, hierachyWraper.getReducedHierarchy(null));
     }
 
     @Test
     public void testGetReducedHierarchyInt() {
-	fail("Not yet implemented");
+	Hierarchy hier = hierachyWraper.getReducedHierarchy(1);
+	assertEquals(null, hier);
     }
 
     @Test
     public void testAddReducedHierarchy() {
-	fail("Not yet implemented");
+	LoadedHierarchy loadedHierarchy = new LoadedHierarchy(hierarchy,
+		new LoadedHierarchy.Options(false, false, false, false, false));
+	DimensionReduction dimensionReduction = new StarCoordinates();
+	CalculatedDimensionReduction calculatedDimensionReduction = new CalculatedDimensionReduction(loadedHierarchy,
+		dimensionReduction, hierarchy);
+	hierachyWraper.addReducedHierarchy(calculatedDimensionReduction);
+	assertNotSame(null, hierachyWraper.getHierarchyWithoutChange(4));
     }
 
 }
