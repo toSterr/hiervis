@@ -181,7 +181,11 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
     }
 
     private void onDimensionReductionSelected(int index) {
-	if (context.getHierarchy().getHierarchyWraper().getHierarchyWithoutChange(index) != null) {
+	if (index == -1) {
+	    previousSelection = -1;
+	    comboBox.setSelectedIndex(0);
+	}
+	else if (context.getHierarchy().getHierarchyWraper().getHierarchyWithoutChange(index) != null) {
 	    afterSelection(index, true);
 	    loadingIcon.hideIcon();
 	}
@@ -215,11 +219,12 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
     private void afterConfirmedReduction(LoadedHierarchy loadedHierarchy, DimensionReduction dimensionReduction, int x,
 	    int y) {
 	context.dimensionReductionCalculating.broadcast(dimensionReduction);
-	confirmationDialog.showDialog(x, y);
+
 	context.getDimensionReductionMenager().addToQueue(loadedHierarchy, dimensionReduction.getClass());
 
 	dimensionReductionRunner = new DimensionReductionRunner(context, dimensionReduction);
 	dimensionReductionRunner.start();
+	confirmationDialog.showDialog(x, y);
     }
 
     /**
@@ -256,22 +261,32 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
     private void onDimensionReductionCalculated(CalculatedDimensionReduction reduction) {
 	context.getDimensionReductionMenager().removeFromQueue(reduction.inputLoadedHierarchy,
 		reduction.dimensionReduction.getClass());
-	loadingIcon.hideIcon();
-	int index = context.getDimensionReductionMenager().getIndex(reduction.dimensionReduction) + 1;
 
-	if (reduction.inputLoadedHierarchy == context.getHierarchy() && comboBox.getSelectedIndex() == index) {
-	    context.getHierarchy().getHierarchyWraper().addReducedHierarchy(reduction);
-	    previousSelection = -1;
-	    comboBox.setSelectedIndex(index);
-	    afterSelection(index, true);
-
+	if (comboBox.getSelectedIndex() == context.getDimensionReductionMenager()
+		.getIndex(reduction.dimensionReduction)) {
+	    loadingIcon.hideIcon();
 	}
-	else
-	    for (LoadedHierarchy l : context.getHierarchyList()) {
-		if (l == reduction.inputLoadedHierarchy) {
-		    l.getHierarchyWraper().addReducedHierarchy(reduction);
-		}
+	if (reduction.outputHierarchy != null) {
+	    loadingIcon.hideIcon();
+	    int index = context.getDimensionReductionMenager().getIndex(reduction.dimensionReduction) + 1;
+
+	    if (reduction.inputLoadedHierarchy == context.getHierarchy() && comboBox.getSelectedIndex() == index) {
+		context.getHierarchy().getHierarchyWraper().addReducedHierarchy(reduction);
+		previousSelection = -1;
+		comboBox.setSelectedIndex(index);
+		afterSelection(index, true);
 	    }
+	    else
+		for (LoadedHierarchy l : context.getHierarchyList()) {
+		    if (l == reduction.inputLoadedHierarchy) {
+			l.getHierarchyWraper().addReducedHierarchy(reduction);
+		    }
+		}
+	}
+	else {
+	    previousSelection = -1;
+	    onDimensionReductionSelected(comboBox.getSelectedIndex());
+	}
     }
 
     private void disableSelection() {

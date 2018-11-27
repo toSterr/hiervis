@@ -27,7 +27,7 @@ public class HierarchyWraper {
 	if (index == 0) {
 	    return originalHierarchy;
 	}
-	else if (index - 1 < dimensionReductionManager.getSize()) {
+	else if (index > 0 && index - 1 < dimensionReductionManager.getSize()) {
 	    return reducedHierarchy[index - 1];
 	}
 	else
