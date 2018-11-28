@@ -66,4 +66,37 @@ public class Tsne extends DimensionReduction {
 
 	return newHier;
     }
+
+    @Override
+    public String getName() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public String getSimpleName() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    @Override
+    public String getDescription() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public static String sGetName() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public static String sGetSimpleName() {
+	// TODO Auto-generated method stub
+	return null;
+    }
+
+    public static String sGetDescription() {
+	// TODO Auto-generated method stub
+	return null;
+    }
 }

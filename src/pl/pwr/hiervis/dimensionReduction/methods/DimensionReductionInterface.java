@@ -6,4 +6,9 @@ import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 public interface DimensionReductionInterface {
     public Hierarchy reduceHierarchy(LoadedHierarchy source);
 
+    public String getName();
+
+    public String getSimpleName();
+
+    public String getDescription();
 }

@@ -4,25 +4,40 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import basic_hierarchy.interfaces.Hierarchy;
-import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 import pl.pwr.hiervis.ui.VisualizerFrame;
+import pl.pwr.hiervis.util.Event;
 
 public class DimensionReductionRunner extends Thread {
     private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
-    private HVContext context;
     private DimensionReduction dimensionReduction;
+    private LoadedHierarchy inputLoadedHierarchy;
+    private Event<CalculatedDimensionReduction> brodcastEvent;
 
-    public DimensionReductionRunner(HVContext context, DimensionReduction dimensionReduction) {
-	this.context = context;
+    public DimensionReductionRunner(LoadedHierarchy loadedHierarchy, DimensionReduction dimensionReduction,
+	    Event<CalculatedDimensionReduction> brodcastEvent) {
+	inputLoadedHierarchy = loadedHierarchy;
 	this.dimensionReduction = dimensionReduction;
+	this.brodcastEvent = brodcastEvent;
 	setName("DimensionReductionComputeThread");
 	setDaemon(true);
     }
 
+    public boolean isTheSame(LoadedHierarchy loadedHierarchy,
+	    Class<? extends DimensionReduction> dimensionReductionClass) {
+	return (inputLoadedHierarchy == loadedHierarchy
+		&& this.dimensionReduction.getClass() == dimensionReductionClass);
+    }
+
+    public void myInterrupt() {
+	System.out.println("interupt?");
+
+	// this.interrupt();
+	this.stop();
+    }
+
     public void run() {
-	LoadedHierarchy inputLoadedHierarchy = context.getHierarchy();
 	Hierarchy outputHierarchy = null;
 	try {
 	    long start = System.currentTimeMillis();
@@ -39,7 +54,7 @@ public class DimensionReductionRunner extends Thread {
 	    log.trace(e);
 	}
 	finally {
-	    context.dimensionReductionCalculated.broadcast(
+	    brodcastEvent.broadcast(
 		    new CalculatedDimensionReduction(inputLoadedHierarchy, dimensionReduction, outputHierarchy));
 	}
     }
