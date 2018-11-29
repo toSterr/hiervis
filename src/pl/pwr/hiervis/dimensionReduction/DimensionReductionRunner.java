@@ -6,11 +6,10 @@ import org.apache.logging.log4j.Logger;
 import basic_hierarchy.interfaces.Hierarchy;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.ui.VisualizerFrame;
 import pl.pwr.hiervis.util.Event;
 
 public class DimensionReductionRunner extends Thread {
-    private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
+    private static final Logger log = LogManager.getLogger(DimensionReductionRunner.class);
     private DimensionReduction dimensionReduction;
     private LoadedHierarchy inputLoadedHierarchy;
     private Event<CalculatedDimensionReduction> brodcastEvent;
@@ -20,7 +19,7 @@ public class DimensionReductionRunner extends Thread {
 	inputLoadedHierarchy = loadedHierarchy;
 	this.dimensionReduction = dimensionReduction;
 	this.brodcastEvent = brodcastEvent;
-	setName("DimensionReductionComputeThread");
+	setName("DimensionReductionComputeThread: " + dimensionReduction.getSimpleName());
 	setDaemon(true);
     }
 
@@ -31,8 +30,7 @@ public class DimensionReductionRunner extends Thread {
     }
 
     public void myInterrupt() {
-	System.out.println("interupt?");
-
+	// System.out.println("interupt?");
 	// this.interrupt();
 	this.stop();
     }
@@ -45,7 +43,10 @@ public class DimensionReductionRunner extends Thread {
 	    outputHierarchy = dimensionReduction.reduceHierarchy(inputLoadedHierarchy);
 
 	    long elapsedTime = System.currentTimeMillis() - start;
-	    System.out.println("Elapsed Time: " + elapsedTime / (1000F) + " sec");
+	    log.trace(dimensionReduction.getSimpleName() + " calculated in: " + elapsedTime / (1000F) + " sec");
+	}
+	catch (java.lang.ThreadDeath e) {
+	    log.trace("Stoped calculation of: " + this.getName());
 	}
 	catch (Exception e) {
 	    log.trace(e);

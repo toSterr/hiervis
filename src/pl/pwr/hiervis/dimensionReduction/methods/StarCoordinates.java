@@ -34,34 +34,28 @@ public class StarCoordinates extends DimensionReduction {
 
     @Override
     public String getName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "Star Coordinates";
     }
 
     @Override
     public String getSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "StarCoords";
     }
 
     @Override
     public String getDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     public static String sGetName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "Star Coordinates";
     }
 
     public static String sGetSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "StarCoords";
     }
 
     public static String sGetDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 }

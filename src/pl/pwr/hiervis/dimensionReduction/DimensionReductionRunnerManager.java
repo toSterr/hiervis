@@ -1,4 +1,4 @@
-package pl.pwr.hiervis.dimensionReduction.methods;
+package pl.pwr.hiervis.dimensionReduction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,13 +7,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import pl.pwr.hiervis.core.HVContext;
-import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
-import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunner;
+import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.ui.VisualizerFrame;
 
 public class DimensionReductionRunnerManager {
-    private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
+    private static final Logger log = LogManager.getLogger(DimensionReductionRunnerManager.class);
     private HVContext context;
     private List<DimensionReductionRunner> taskList;
 

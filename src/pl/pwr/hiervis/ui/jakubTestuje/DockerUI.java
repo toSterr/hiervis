@@ -30,14 +30,13 @@ import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
 import pl.pwr.hiervis.dimensionReduction.ui.DimensionReductionWrapInstanceVisualizationsFrame;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.ui.VisualizerFrame;
 import pl.pwr.hiervis.util.Event;
 import pl.pwr.hiervis.util.HierarchyUtils;
 import pl.pwr.hiervis.util.SwingUIUtils;
 
 @SuppressWarnings("serial")
 public class DockerUI extends JFrame implements DockingConstants {
-    private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
+    private static final Logger log = LogManager.getLogger(DockerUI.class);
 
     /** Sent when a hierarchy tab is closed. */
     public final Event<Integer> hierarchyTabClosed = new Event<>();

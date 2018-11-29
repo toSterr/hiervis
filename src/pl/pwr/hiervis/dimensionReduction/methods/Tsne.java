@@ -69,34 +69,28 @@ public class Tsne extends DimensionReduction {
 
     @Override
     public String getName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "t-Distributed Stochastic Neighbor Embedding";
     }
 
     @Override
     public String getSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "t-SNE";
     }
 
     @Override
     public String getDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     public static String sGetName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "t-Distributed Stochastic Neighbor Embedding";
     }
 
     public static String sGetSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "t-SNE";
     }
 
     public static String sGetDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 }

@@ -44,4 +44,33 @@ public class PrincipalComponentAnalysisTest {
 	assertEquals(2, hierarchy.getRoot().getNodeInstances().getFirst().getData().length);
     }
 
+    @Test
+    public void testGetName() {
+	assertEquals("t-Distributed Stochastic Neighbor Embedding", dimensionReduction.getName());
+    }
+
+    @Test
+    public void testGetSimpleName() {
+	assertEquals("t-Distributed Stochastic Neighbor Embedding", dimensionReduction.getSimpleName());
+    }
+
+    @Test
+    public void testGetDescription() {
+	assertEquals(" ", dimensionReduction.getDescription());
+    }
+
+    @Test
+    public void testSGetName() {
+	assertEquals("t-Distributed Stochastic Neighbor Embedding", PrincipalComponentAnalysis.sGetName());
+    }
+
+    @Test
+    public void testSGetSimpleName() {
+	assertEquals("t-Distributed Stochastic Neighbor Embedding", PrincipalComponentAnalysis.sGetSimpleName());
+    }
+
+    @Test
+    public void testSGetDescription() {
+	assertEquals(" ", PrincipalComponentAnalysis.sGetDescription());
+    }
 }

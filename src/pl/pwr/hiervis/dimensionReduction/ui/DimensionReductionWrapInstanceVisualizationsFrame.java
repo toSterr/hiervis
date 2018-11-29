@@ -20,8 +20,8 @@ import javax.swing.border.EmptyBorder;
 
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.dimensionReduction.CalculatedDimensionReduction;
+import pl.pwr.hiervis.dimensionReduction.DimensionReductionRunnerManager;
 import pl.pwr.hiervis.dimensionReduction.methods.DimensionReduction;
-import pl.pwr.hiervis.dimensionReduction.methods.DimensionReductionRunnerManager;
 import pl.pwr.hiervis.dimensionReduction.ui.elements.LoadingIcon;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
 

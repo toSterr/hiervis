@@ -22,11 +22,11 @@ public class MultidimensionalScaling extends DimensionReduction {
     @Override
     public Hierarchy reduceHierarchy(LoadedHierarchy source) {
 
-	double[][] input = generateDissimilarityMatrix(
+	double[][] output = generateDissimilarityMatrix(
 		HierarchyUtils.toMatrix(source.getHierarchyWraper().getOriginalHierarchy()));
 
 	System.out.println("Calculating MDS");
-	double[][] output = MDSJ.classicalScaling(input); // apply MDS
+	output = MDSJ.classicalScaling(output); // apply MDS
 	System.out.println("Finished Calculating MDS");
 
 	output = MatrixUtils.TransposeMatrix(output);
@@ -59,34 +59,28 @@ public class MultidimensionalScaling extends DimensionReduction {
 
     @Override
     public String getName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "Multidimensional Scaling";
     }
 
     @Override
     public String getSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "MDS";
     }
 
     @Override
     public String getDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 
     public static String sGetName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "Multidimensional Scaling";
     }
 
     public static String sGetSimpleName() {
-	// TODO Auto-generated method stub
-	return null;
+	return "MDS";
     }
 
     public static String sGetDescription() {
-	// TODO Auto-generated method stub
-	return null;
+	return "";
     }
 }
