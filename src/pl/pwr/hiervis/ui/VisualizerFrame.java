@@ -20,6 +20,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JSeparator;
 import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
@@ -34,7 +35,7 @@ import pl.pwr.hiervis.core.HVConstants;
 import pl.pwr.hiervis.core.HVContext;
 import pl.pwr.hiervis.hierarchy.HierarchyProcessor;
 import pl.pwr.hiervis.hierarchy.LoadedHierarchy;
-import pl.pwr.hiervis.hk.ui.HKOptionsFrame;
+import pl.pwr.hiervis.hk.ui.HKOptionsJDialog;
 import pl.pwr.hiervis.prefuse.DisplayEx;
 import pl.pwr.hiervis.prefuse.control.CustomToolTipControl;
 import pl.pwr.hiervis.prefuse.control.MouseControl;
@@ -56,11 +57,9 @@ import prefuse.Visualization;
 import prefuse.controls.Control;
 import prefuse.visual.NodeItem;
 
-
 @SuppressWarnings("serial")
-public class VisualizerFrame extends JFrame implements ActionListener
-{
-	private static final Logger log = LogManager.getLogger( VisualizerFrame.class );
+public class VisualizerFrame extends JFrame implements ActionListener {
+	private static final Logger log = LogManager.getLogger(VisualizerFrame.class);
 
 	/** Sent when a hierarchy tab is closed. */
 	public final Event<Integer> hierarchyTabClosed = new Event<>();
@@ -78,527 +77,469 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	private JMenuItem mntmSaveFile;
 	private JMenuItem mntmFlatten;
 
-
-	public VisualizerFrame( HVContext context, String subtitle )
-	{
-		super( "Hierarchy Frame" + ( subtitle == null ? "" : ( " [ " + subtitle + " ]" ) ) );
+	public VisualizerFrame(HVContext context, String subtitle) {
+		super("Hierarchy Frame" + (subtitle == null ? "" : (" [ " + subtitle + " ]")));
 		this.subtitle = subtitle;
 
-		if ( context == null )
-			throw new RuntimeException( "Context must not be null!" );
+		if (context == null)
+			throw new RuntimeException("Context must not be null!");
 
 		this.context = context;
 
-		setDefaultCloseOperation( DISPOSE_ON_CLOSE );
-		setSize( defaultFrameWidth, defaultFrameHeight );
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		setSize(defaultFrameWidth, defaultFrameHeight);
 
 		createMenu();
 		createGUI();
 
-		createFileDrop( this, log, "csv", this::loadFile );
+		createFileDrop(this, log, "csv", this::loadFile);
 
-		context.hierarchyChanging.addListener( this::onHierarchyChanging );
-		context.hierarchyChanged.addListener( this::onHierarchyChanged );
-		context.nodeSelectionChanged.addListener( this::onNodeSelectionChanged );
-		context.configChanged.addListener( this::onConfigChanged );
+		context.hierarchyChanging.addListener(this::onHierarchyChanging);
+		context.hierarchyChanged.addListener(this::onHierarchyChanged);
+		context.nodeSelectionChanged.addListener(this::onNodeSelectionChanged);
+		context.configChanged.addListener(this::onConfigChanged);
 
-		SwingUIUtils.addCloseCallback( this, this::onWindowClosing );
+		SwingUIUtils.addCloseCallback(this, this::onWindowClosing);
 	}
 
-	public void layoutFrames()
-	{
-		Rectangle r = SwingUIUtils.getEffectiveDisplayArea( null );
+	public void layoutFrames() {
+		Rectangle r = SwingUIUtils.getEffectiveDisplayArea(null);
 
 		int frameWidth = r.width / 4;
 
-		Dimension dimMainFrame = new Dimension( frameWidth, frameWidth );
-		Dimension dimStatsFrame = new Dimension( frameWidth, r.height - frameWidth );
-		Dimension dimVisFrame = new Dimension( r.width - frameWidth, r.height );
+		Dimension dimMainFrame = new Dimension(frameWidth, frameWidth);
+		Dimension dimStatsFrame = new Dimension(frameWidth, r.height - frameWidth);
+		Dimension dimVisFrame = new Dimension(r.width - frameWidth, r.height);
 
-		this.setSize( dimMainFrame );
-		this.setLocation( r.x, r.y );
+		this.setSize(dimMainFrame);
+		this.setLocation(r.x, r.y);
 
-		context.getStatisticsFrame().setSize( dimStatsFrame );
-		context.getStatisticsFrame().setLocation( r.x, r.y + frameWidth );
+		context.getStatisticsFrame().setSize(dimStatsFrame);
+		context.getStatisticsFrame().setLocation(r.x, r.y + frameWidth);
 
-		context.getInstanceFrame().setSize( dimVisFrame );
-		context.getInstanceFrame().setLocation( r.x + frameWidth, r.y );
+		context.getInstanceFrame().setSize(dimVisFrame);
+		context.getInstanceFrame().setLocation(r.x + frameWidth, r.y);
 	}
 
-	public void showFrames()
-	{
+	public void showFrames() {
 		// Restore the frames if they were minimized
-		context.getStatisticsFrame().setExtendedState( JFrame.NORMAL );
-		context.getInstanceFrame().setExtendedState( JFrame.NORMAL );
+		context.getStatisticsFrame().setExtendedState(JFrame.NORMAL);
+		context.getInstanceFrame().setExtendedState(JFrame.NORMAL);
 
-		context.getStatisticsFrame().setVisible( true );
-		context.getInstanceFrame().setVisible( true );
+		context.getStatisticsFrame().setVisible(true);
+		context.getInstanceFrame().setVisible(true);
 	}
 
-	public void createHierarchyTab( String tabName )
-	{
+	public void createHierarchyTab(String tabName) {
 		Component tabContent = createHierarchyDisplay();
-		tabPane.addTab( tabName, null, tabContent, null );
-		int index = tabPane.indexOfComponent( tabContent );
+		tabPane.addTab(tabName, null, tabContent, null);
+		int index = tabPane.indexOfComponent(tabContent);
 
-		CloseableTabComponent c = new CloseableTabComponent( tabPane );
-		c.addCloseListener( this );
-		tabPane.setTabComponentAt( index, c );
+		CloseableTabComponent c = new CloseableTabComponent(tabPane);
+		c.addCloseListener(this);
+		tabPane.setTabComponentAt(index, c);
 	}
 
-	public void selectTab( int index )
-	{
-		tabPane.setSelectedIndex( index );
+	public void selectTab(int index) {
+		tabPane.setSelectedIndex(index);
 	}
 
-	public int getSelectedTabIndex()
-	{
+	public int getSelectedTabIndex() {
 		return tabPane.getSelectedIndex();
 	}
-	
-	public String getSelectedTabTitle()
-	{
-		return tabPane.getTitleAt( tabPane.getSelectedIndex());
-	}
-	
-	public void closeTab( int index )
-	{
-		log.trace( "Closing tab '" + tabPane.getTitleAt( index ) + "'" );
-		hierarchyTabClosed.broadcast( index );
 
-		DisplayEx d = (DisplayEx)tabPane.getComponentAt( index );
-		HierarchyProcessor.disposeHierarchyVis( d.getVisualization() );
-		d.setVisualization( null );
-		d.reset();
-		d.dispose();
-
-		tabPane.removeTabAt( index );
+	public String getSelectedTabTitle() {
+		return tabPane.getTitleAt(tabPane.getSelectedIndex());
 	}
 
-	public void closeCurrentTab()
-	{
-		closeTab( tabPane.getSelectedIndex() );
+	public boolean closeTab(int index) {
+		int dialogResult = JOptionPane.showConfirmDialog(null,
+				"Are you sure to close the hierarchy, unsaved data will be lost?", "Warning",
+				JOptionPane.YES_NO_OPTION);
+
+		if (dialogResult == JOptionPane.YES_OPTION) {
+			log.trace("Closing tab '" + tabPane.getTitleAt(index) + "'");
+			hierarchyTabClosed.broadcast(index);
+
+			DisplayEx d = (DisplayEx) tabPane.getComponentAt(index);
+			HierarchyProcessor.disposeHierarchyVis(d.getVisualization());
+			d.setVisualization(null);
+			d.reset();
+			d.dispose();
+
+			tabPane.removeTabAt(index);
+			return true;
+		}
+		return false;
+	}
+
+	public boolean closeCurrentTab() {
+		return closeTab(tabPane.getSelectedIndex());
 	}
 
 	// -----------------------------------------------------------------------------------------
 
-	private void createGUI()
-	{
+	private void createGUI() {
 		tabPane = new JTabbedPane();
 
-		getContentPane().add( tabPane, BorderLayout.CENTER );
+		getContentPane().add(tabPane, BorderLayout.CENTER);
 
 		// Reinsert the original mouse listener, so that ours is first in the
 		// notification order.
 		MouseListener l = tabPane.getMouseListeners()[0];
-		tabPane.removeMouseListener( l );
-		tabPane.addMouseListener(
-			new MouseAdapter() {
-				@Override
-				public void mousePressed( MouseEvent e )
-				{
-					if ( SwingUtilities.isMiddleMouseButton( e ) ) {
-						int index = tabPane.getUI().tabForCoordinate( tabPane, e.getX(), e.getY() );
-						if ( index >= 0 ) {
-							closeTab( index );
-						}
+		tabPane.removeMouseListener(l);
+		tabPane.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				if (SwingUtilities.isMiddleMouseButton(e)) {
+					int index = tabPane.getUI().tabForCoordinate(tabPane, e.getX(), e.getY());
+					if (index >= 0) {
+						closeTab(index);
 					}
 				}
 			}
-		);
-		tabPane.addMouseListener( l );
+		});
+		tabPane.addMouseListener(l);
 
-		tabPane.addChangeListener(
-			e -> {
-				int index = tabPane.getSelectedIndex();
-				if ( index >= 0 ) {
-					hierarchyTabSelected.broadcast( index );
-				}
+		tabPane.addChangeListener(e -> {
+			int index = tabPane.getSelectedIndex();
+			if (index >= 0) {
+				hierarchyTabSelected.broadcast(index);
 			}
-		);
+		});
 	}
 
-	private DisplayEx createHierarchyDisplay()
-	{
-		DisplayEx display = new DisplayEx( HVConstants.EMPTY_VISUALIZATION );
+	private DisplayEx createHierarchyDisplay() {
+		DisplayEx display = new DisplayEx(HVConstants.EMPTY_VISUALIZATION);
 
-		display.setEnabled( false );
-		display.setHighQuality( true );
-		display.setBackground( context.getConfig().getBackgroundColor() );
+		display.setEnabled(false);
+		display.setHighQuality(true);
+		display.setBackground(context.getConfig().getBackgroundColor());
 
-		display.addControlListener(
-			new NodeSelectionControl(
-				() -> context.getHierarchy().getTree(),
-				context::getSelectedRow, context::setSelectedRow
-			)
-		);
-		display.addControlListener( new SubtreeDragControl( Control.RIGHT_MOUSE_BUTTON ) );
-		display.addControlListener( new PanControl( new Class[] { NodeItem.class } ) );
-		display.addControlListener( new ZoomScrollControl() );
-		display.addControlListener(
-			new CustomToolTipControl(
-				item -> {
-					if ( item instanceof NodeItem ) {
-						StringBuilder buf = new StringBuilder();
+		display.addControlListener(new NodeSelectionControl(() -> context.getHierarchy().getTree(),
+				context::getSelectedRow, context::setSelectedRow));
+		display.addControlListener(new SubtreeDragControl(Control.RIGHT_MOUSE_BUTTON));
+		display.addControlListener(new PanControl(new Class[] { NodeItem.class }));
+		display.addControlListener(new ZoomScrollControl());
+		display.addControlListener(new CustomToolTipControl(item -> {
+			if (item instanceof NodeItem) {
+				StringBuilder buf = new StringBuilder();
 
-						String nodeId = item.getString( HVConstants.PREFUSE_NODE_ID_COLUMN_NAME );
-						Node n = HierarchyUtils.findGroup( context.getHierarchy(), nodeId );
-						buf.append( "<html>" );
-						buf.append( "<b>" ).append( nodeId ).append( "</b><br/>" )
-							.append( "Instances in this node: " ).append( n.getNodeInstances().size() ).append( "<br/>" );
-						if ( n.getChildren().size() > 0 ) {
-							buf.append( "Instances in subtree: " ).append( n.getSubtreeInstances().size() );
-						}
-						buf.append( "</html>" );
-
-						return buf.toString();
-					}
-
-					return null;
+				String nodeId = item.getString(HVConstants.PREFUSE_NODE_ID_COLUMN_NAME);
+				Node n = HierarchyUtils.findGroup(context.getHierarchy(), nodeId);
+				buf.append("<html>");
+				buf.append("<b>").append(nodeId).append("</b><br/>").append("Instances in this node: ")
+						.append(n.getNodeInstances().size()).append("<br/>");
+				if (n.getChildren().size() > 0) {
+					buf.append("Instances in subtree: ").append(n.getSubtreeInstances().size());
 				}
-			)
-		);
+				buf.append("</html>");
+
+				return buf.toString();
+			}
+
+			return null;
+		}));
 
 		MouseControl mouseControl = new MouseControl();
 
-		mouseControl.addAction(
-			new MouseAction(
-				TriggerAreaTypes.VISUAL_ITEM, MouseEvent.BUTTON1, true, ( item, e ) -> {
-					e.getComponent().requestFocusInWindow();
+		mouseControl.addAction(new MouseAction(TriggerAreaTypes.VISUAL_ITEM, MouseEvent.BUTTON1, true, (item, e) -> {
+			e.getComponent().requestFocusInWindow();
 
-					if ( item instanceof NodeItem ) {
-						context.setSelectedRow( item.getRow() );
-					}
-				}
-			)
-		);
+			if (item instanceof NodeItem) {
+				context.setSelectedRow(item.getRow());
+			}
+		}));
 
-		mouseControl.addAction(
-			new MouseAction(
-				TriggerAreaTypes.VISUAL_ITEM, MouseEvent.BUTTON1, 2, ( item, e ) -> {
-					if ( item instanceof NodeItem ) {
-						Node n = HierarchyUtils.findGroup( context.getHierarchy(), item.getRow() );
+		mouseControl.addAction(new MouseAction(TriggerAreaTypes.VISUAL_ITEM, MouseEvent.BUTTON1, 2, (item, e) -> {
+			if (item instanceof NodeItem) {
+				Node n = HierarchyUtils.findGroup(context.getHierarchy(), item.getRow());
 
-						HKOptionsFrame hkFrame = new HKOptionsFrame( context, this, n, subtitle );
+				HKOptionsJDialog hkFrame = new HKOptionsJDialog(context, this, n, subtitle);
 
-						hkFrame.setVisible( true );
-						hkFrame.setLocationRelativeTo( this );
-					}
-				}
-			)
-		);
+				int x = (int) getContentPane().getLocationOnScreen().getX() / 2 + getContentPane().getWidth() / 2;
+				int y = (int) getContentPane().getLocationOnScreen().getY() / 2 + getContentPane().getHeight() / 2;
 
-		display.addControlListener( mouseControl );
+				hkFrame.setLocationRelativeTo(this);
+				hkFrame.showDialog(x, y);
+			}
+		}));
+
+		display.addControlListener(mouseControl);
 
 		return display;
 	}
 
-	private void createMenu()
-	{
+	private void createMenu() {
 		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar( menuBar );
+		setJMenuBar(menuBar);
 
-		createFileMenu( menuBar );
-		createEditMenu( menuBar );
-		createViewMenu( menuBar );
+		createFileMenu(menuBar);
+		createEditMenu(menuBar);
+		createViewMenu(menuBar);
 	}
 
-	private void createFileMenu( JMenuBar menuBar )
-	{
-		JMenu mnFile = new JMenu( "File" );
-		mnFile.setMnemonic( 'F' );
-		menuBar.add( mnFile );
+	private void createFileMenu(JMenuBar menuBar) {
+		JMenu mnFile = new JMenu("File");
+		mnFile.setMnemonic('F');
+		menuBar.add(mnFile);
 
-		JMenuItem mntmOpenFile = new JMenuItem( "Open file..." );
-		mntmOpenFile.setMnemonic( 'O' );
-		mntmOpenFile.addActionListener( e -> openFileSelectionDialog() );
-		mnFile.add( mntmOpenFile );
+		JMenuItem mntmOpenFile = new JMenuItem("Open file...");
+		mntmOpenFile.setMnemonic('O');
+		mntmOpenFile.addActionListener(e -> openFileSelectionDialog());
+		mnFile.add(mntmOpenFile);
 
-		mntmCloseFile = new JMenuItem( "Close current hierarchy" );
-		mntmCloseFile.setMnemonic( 'W' );
-		mntmCloseFile.addActionListener( e -> closeCurrentTab() );
-		mntmCloseFile.setEnabled( false );
-		mnFile.add( mntmCloseFile );
+		mntmCloseFile = new JMenuItem("Close current hierarchy");
+		mntmCloseFile.setMnemonic('W');
+		mntmCloseFile.addActionListener(e -> closeCurrentTab());
+		mntmCloseFile.setEnabled(false);
+		mnFile.add(mntmCloseFile);
 
-		mntmSaveFile = new JMenuItem( "Save current hierarchy..." );
-		mntmSaveFile.setMnemonic( 'S' );
-		mntmSaveFile.addActionListener( e -> openSaveDialog() );
-		mntmSaveFile.setEnabled( false );
-		mnFile.add( mntmSaveFile );
+		mntmSaveFile = new JMenuItem("Save current hierarchy...");
+		mntmSaveFile.setMnemonic('S');
+		mntmSaveFile.addActionListener(e -> openSaveDialog());
+		mntmSaveFile.setEnabled(false);
+		mnFile.add(mntmSaveFile);
 
-		mnFile.add( new JSeparator() );
+		mnFile.add(new JSeparator());
 
-		JMenuItem mntmConfig = new JMenuItem( "Config" );
-		mntmConfig.setMnemonic( 'C' );
-		mntmConfig.addActionListener( e -> openConfigDialog() );
-		mnFile.add( mntmConfig );
+		JMenuItem mntmConfig = new JMenuItem("Config");
+		mntmConfig.setMnemonic('C');
+		mntmConfig.addActionListener(e -> openConfigDialog());
+		mnFile.add(mntmConfig);
 	}
 
-	private void createEditMenu( JMenuBar menuBar )
-	{
-		JMenu mnEdit = new JMenu( "Edit" );
-		mnEdit.setMnemonic( 'E' );
-		menuBar.add( mnEdit );
+	private void createEditMenu(JMenuBar menuBar) {
+		JMenu mnEdit = new JMenu("Edit");
+		mnEdit.setMnemonic('E');
+		menuBar.add(mnEdit);
 
-		mntmFlatten = new JMenuItem( "Flatten Hierarchy" );
-		mntmFlatten.setMnemonic( 'F' );
-		mntmFlatten.addActionListener(
-			e -> {
-				String tabTitle = "[F] " + tabPane.getTitleAt( tabPane.getSelectedIndex() );
-				context.loadHierarchy( tabTitle, HierarchyUtils.flattenHierarchy( context.getHierarchy() ) );
-			}
-		);
-		mntmFlatten.setEnabled( false );
-		mnEdit.add( mntmFlatten );
+		mntmFlatten = new JMenuItem("Flatten Hierarchy");
+		mntmFlatten.setMnemonic('F');
+		mntmFlatten.addActionListener(e -> {
+			String tabTitle = "[F] " + tabPane.getTitleAt(tabPane.getSelectedIndex());
+			context.loadHierarchy(tabTitle, HierarchyUtils.flattenHierarchy(context.getHierarchy()));
+		});
+		mntmFlatten.setEnabled(false);
+		mnEdit.add(mntmFlatten);
 	}
 
-	private void createViewMenu( JMenuBar menuBar )
-	{
-		JMenu mnView = new JMenu( "View" );
-		mnView.setMnemonic( 'V' );
-		menuBar.add( mnView );
+	private void createViewMenu(JMenuBar menuBar) {
+		JMenu mnView = new JMenu("View");
+		mnView.setMnemonic('V');
+		menuBar.add(mnView);
 
-		JMenuItem mntmStats = new JMenuItem( "Hierarchy Statistics" );
-		mntmStats.setMnemonic( 'S' );
-		mnView.add( mntmStats );
+		JMenuItem mntmStats = new JMenuItem("Hierarchy Statistics");
+		mntmStats.setMnemonic('S');
+		mnView.add(mntmStats);
 
-		mntmStats.addActionListener(
-			e -> {
-				// Restore the frame if it was minimized
-				context.getStatisticsFrame().setExtendedState( JFrame.NORMAL );
-				context.getStatisticsFrame().setVisible( true );
-			}
-		);
+		mntmStats.addActionListener(e -> {
+			// Restore the frame if it was minimized
+			context.getStatisticsFrame().setExtendedState(JFrame.NORMAL);
+			context.getStatisticsFrame().setVisible(true);
+		});
 
-		JMenuItem mntmVis = new JMenuItem( "Instance Visualizations" );
-		mntmVis.setMnemonic( 'V' );
-		mnView.add( mntmVis );
+		JMenuItem mntmVis = new JMenuItem("Instance Visualizations");
+		mntmVis.setMnemonic('V');
+		mnView.add(mntmVis);
 
-		mntmVis.addActionListener(
-			e -> {
-				// Restore the frame if it was minimized
-				context.getInstanceFrame().setExtendedState( JFrame.NORMAL );
-				context.getInstanceFrame().setVisible( true );
-			}
-		);
+		mntmVis.addActionListener(e -> {
+			// Restore the frame if it was minimized
+			context.getInstanceFrame().setExtendedState(JFrame.NORMAL);
+			context.getInstanceFrame().setVisible(true);
+		});
 	}
 
 	/**
-	 * Opens a file selection dialog, allowing the user to select a hierarchy file to load.
+	 * Opens a file selection dialog, allowing the user to select a hierarchy file
+	 * to load.
 	 */
-	public void openFileSelectionDialog()
-	{
+	public void openFileSelectionDialog() {
 		JFileChooser fileDialog = new JFileChooser();
-		fileDialog.setCurrentDirectory( new File( "." ) );
-		fileDialog.setDialogTitle( "Select a file to load" );
-		fileDialog.setFileSelectionMode( JFileChooser.FILES_ONLY );
-		fileDialog.setAcceptAllFileFilterUsed( false );
-		fileDialog.setFileFilter( new FileNameExtensionFilter( "*.csv", "csv" ) );
+		fileDialog.setCurrentDirectory(new File("."));
+		fileDialog.setDialogTitle("Select a file to load");
+		fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileDialog.setAcceptAllFileFilterUsed(false);
+		fileDialog.setFileFilter(new FileNameExtensionFilter("*.csv", "csv"));
 
-		if ( fileDialog.showOpenDialog( this ) == JFileChooser.APPROVE_OPTION ) {
-			loadFile( fileDialog.getSelectedFile() );
+		if (fileDialog.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			loadFile(fileDialog.getSelectedFile());
 		}
 		else {
-			log.trace( "Loading aborted." );
+			log.trace("Loading aborted.");
 		}
 	}
 
 	/**
-	 * Opens a file selection dialog, allowing the user to select a destination file to save the hierarchy to.
+	 * Opens a file selection dialog, allowing the user to select a destination file
+	 * to save the hierarchy to.
 	 */
-	public void openSaveDialog()
-	{
+	public void openSaveDialog() {
 		JFileChooserEx fileDialog = new JFileChooserEx();
-		fileDialog.setCurrentDirectory( new File( "." ) );
-		fileDialog.setDialogTitle( "Select destination file" );
-		fileDialog.setFileSelectionMode( JFileChooser.FILES_ONLY );
-		fileDialog.setAcceptAllFileFilterUsed( true );
-		fileDialog.addChoosableFileFilter( new FileNameExtensionFilter( "*.csv", "csv" ) );
+		fileDialog.setCurrentDirectory(new File("."));
+		fileDialog.setDialogTitle("Select destination file");
+		fileDialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fileDialog.setAcceptAllFileFilterUsed(true);
+		fileDialog.addChoosableFileFilter(new FileNameExtensionFilter("*.csv", "csv"));
 
-		if ( fileDialog.showSaveDialog( this ) == JFileChooser.APPROVE_OPTION ) {
+		if (fileDialog.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
 			try {
 				LoadedHierarchy lh = context.getHierarchy();
 
-				HierarchyUtils.save(
-					fileDialog.getSelectedFile().getAbsolutePath(),
-					lh.getMainHierarchy(),
-					true,
-					lh.options.hasTrueClassAttribute,
-					lh.options.hasInstanceNameAttribute,
-					true
-				);
+				HierarchyUtils.save(fileDialog.getSelectedFile().getAbsolutePath(), lh.getMainHierarchy(), true,
+						lh.options.hasTrueClassAttribute, lh.options.hasInstanceNameAttribute, true);
 			}
-			catch ( IOException e ) {
-				log.error( "Error while saving hierarchy: ", e );
-				SwingUIUtils.showErrorDialog( "Error occurred while saving the hierarchy:\n\n" + e.getMessage() );
+			catch (IOException e) {
+				log.error("Error while saving hierarchy: ", e);
+				SwingUIUtils.showErrorDialog("Error occurred while saving the hierarchy:\n\n" + e.getMessage());
 			}
 		}
 		else {
-			log.trace( "Saving aborted." );
+			log.trace("Saving aborted.");
 		}
 	}
 
 	/**
-	 * Opens a configuration dialog, allowing the user to change application settings.
-	 * This method blocks until the user exits the dialog.
-	 * If the user made changes to the application's settings, the hierarchy visualization
-	 * is recreated.
+	 * Opens a configuration dialog, allowing the user to change application
+	 * settings. This method blocks until the user exits the dialog. If the user
+	 * made changes to the application's settings, the hierarchy visualization is
+	 * recreated.
 	 */
-	public void openConfigDialog()
-	{
-		ConfigDialog dialog = new ConfigDialog( context, this );
+	public void openConfigDialog() {
+		ConfigDialog dialog = new ConfigDialog(context, this);
 
 		// Make the dialog appear at the center of the screen
-		dialog.setLocationRelativeTo( null );
-		dialog.setVisible( true ); // Blocks until the dialog is dismissed.
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true); // Blocks until the dialog is dismissed.
 
-		if ( dialog.hasConfigChanged() ) {
-			log.trace( "Updating current config..." );
-			context.setConfig( dialog.getConfig() );
+		if (dialog.hasConfigChanged()) {
+			log.trace("Updating current config...");
+			context.setConfig(dialog.getConfig());
 		}
 
-		log.trace( "Config customization finished." );
+		log.trace("Config customization finished.");
 	}
 
 	/**
-	 * Creates a hierarchy visualization for the currently loaded hierarchy, and lay it out,
-	 * so that it is rendered correctly.
+	 * Creates a hierarchy visualization for the currently loaded hierarchy, and lay
+	 * it out, so that it is rendered correctly.
 	 */
-	private void recreateHierarchyVisualization( Display display )
-	{
-		if ( !context.isHierarchyDataLoaded() ) {
-			throw new RuntimeException( "No hierarchy data is available." );
+	private void recreateHierarchyVisualization(Display display) {
+		if (!context.isHierarchyDataLoaded()) {
+			throw new RuntimeException("No hierarchy data is available.");
 		}
 
 		display.reset();
 		Visualization vis = display.getVisualization();
-		if ( vis != null ) {
-			HierarchyProcessor.disposeHierarchyVis( vis );
+		if (vis != null) {
+			HierarchyProcessor.disposeHierarchyVis(vis);
 		}
 
 		vis = context.createHierarchyVisualization();
-		display.setVisualization( vis );
-		HierarchyProcessor.layoutVisualization( vis );
+		display.setVisualization(vis);
+		HierarchyProcessor.layoutVisualization(vis);
 
-		onNodeSelectionChanged( context.getSelectedRow() );
+		onNodeSelectionChanged(context.getSelectedRow());
 	}
 
-	private void recreateHierarchyVisualizationAsync( Display display )
-	{
-		SwingUIUtils.executeAsyncWithWaitWindow(
-			this, "Creating hierarchy visualization...", log, false,
-			() -> recreateHierarchyVisualization( display ),
-			() -> {
-				display.setEnabled( true );
-				Utils.fitToBounds( display, Visualization.ALL_ITEMS, 0, 0 );
-			},
-			null
-		);
+	private void recreateHierarchyVisualizationAsync(Display display) {
+		SwingUIUtils.executeAsyncWithWaitWindow(this, "Creating hierarchy visualization...", log, false,
+				() -> recreateHierarchyVisualization(display), () -> {
+					display.setEnabled(true);
+					Utils.fitToBounds(display, Visualization.ALL_ITEMS, 0, 0);
+				}, null);
 	}
 
-	private boolean fileNotEmpty (File file)
-	{
-		if (file.length()!=0)
-		{
+	private boolean fileNotEmpty(File file) {
+		if (file.length() != 0) {
 			return true;
 		}
-		else
-		{
-			SwingUtilities.invokeLater(
-					() -> {
-						SwingUIUtils.showInfoDialog(
-							"It is not posible to load a empty file.");
-					}
-				);
+		else {
+			SwingUtilities.invokeLater(() -> {
+				SwingUIUtils.showInfoDialog("It is not posible to load a empty file.");
+			});
 			return false;
 		}
 	}
-	
-	private void loadFile( File file )
-	{
-		if ( fileNotEmpty(file)  )
-		{
-			context.loadFile( this, file );
+
+	private void loadFile(File file) {
+		if (fileNotEmpty(file)) {
+			context.loadFile(this, file);
 		}
 	}
 
-	private Display getCurrentHierarchyDisplay()
-	{
+	private Display getCurrentHierarchyDisplay() {
 		int index = tabPane.getSelectedIndex();
-		if ( index >= 0 ) {
-			Component c = tabPane.getComponentAt( index );
-			return (Display)c;
+		if (index >= 0) {
+			Component c = tabPane.getComponentAt(index);
+			return (Display) c;
 		}
 		return null;
 	}
 
 	// -----------------------------------------------------------------------------------------
 
-	private void onHierarchyChanging( LoadedHierarchy oldHierarchy )
-	{
+	private void onHierarchyChanging(LoadedHierarchy oldHierarchy) {
 		Display d = getCurrentHierarchyDisplay();
-		if ( d != null )
+		if (d != null)
 			d.reset();
 
-		mntmCloseFile.setEnabled( false );
-		mntmSaveFile.setEnabled( false );
-		mntmFlatten.setEnabled( false );
+		mntmCloseFile.setEnabled(false);
+		mntmSaveFile.setEnabled(false);
+		mntmFlatten.setEnabled(false);
 	}
 
-	private void onHierarchyChanged( LoadedHierarchy newHierarchy )
-	{
-		if ( context.isHierarchyDataLoaded() ) {
-			int index = context.getHierarchyIndex( newHierarchy );
-			if ( index != getSelectedTabIndex() ) {
-				tabPane.setSelectedIndex( index );
+	private void onHierarchyChanged(LoadedHierarchy newHierarchy) {
+		if (context.isHierarchyDataLoaded()) {
+			int index = context.getHierarchyIndex(newHierarchy);
+			if (index != getSelectedTabIndex()) {
+				tabPane.setSelectedIndex(index);
 			}
 
 			Display currentDisplay = getCurrentHierarchyDisplay();
-			// Only recreate the visualization if it's the first time we're visiting that tab.
-			if ( currentDisplay.getVisualization() == HVConstants.EMPTY_VISUALIZATION ) {
-				recreateHierarchyVisualizationAsync( currentDisplay );
+			// Only recreate the visualization if it's the first time we're visiting that
+			// tab.
+			if (currentDisplay.getVisualization() == HVConstants.EMPTY_VISUALIZATION) {
+				recreateHierarchyVisualizationAsync(currentDisplay);
 			}
 			else {
-				currentDisplay.getVisualization().run( "nodeColor" );
+				currentDisplay.getVisualization().run("nodeColor");
 				currentDisplay.damageReport();
 				currentDisplay.repaint();
 			}
 
-			mntmCloseFile.setEnabled( true );
-			mntmSaveFile.setEnabled( true );
-			mntmFlatten.setEnabled( true );
+			mntmCloseFile.setEnabled(true);
+			mntmSaveFile.setEnabled(true);
+			mntmFlatten.setEnabled(true);
 		}
 	}
 
-	private void onNodeSelectionChanged( int row )
-	{
-		HierarchyProcessor.updateNodeRoles( context, context.getSelectedRow() );
+	private void onNodeSelectionChanged(int row) {
+		HierarchyProcessor.updateNodeRoles(context, context.getSelectedRow());
 
 		// Refresh the hierarchy display so that it reflects node roles correctly
 		Display currentDisplay = getCurrentHierarchyDisplay();
-		currentDisplay.getVisualization().run( "nodeColor" );
+		currentDisplay.getVisualization().run("nodeColor");
 		currentDisplay.damageReport();
 		currentDisplay.repaint();
 	}
 
-	private void onConfigChanged( HVConfig cfg )
-	{
+	private void onConfigChanged(HVConfig cfg) {
 		Display currentDisplay = getCurrentHierarchyDisplay();
 
-		if ( currentDisplay != null ) {
-			currentDisplay.getVisualization().run( "nodeColor" );
-			currentDisplay.setBackground( cfg.getBackgroundColor() );
+		if (currentDisplay != null) {
+			currentDisplay.getVisualization().run("nodeColor");
+			currentDisplay.setBackground(cfg.getBackgroundColor());
 			currentDisplay.damageReport();
 			currentDisplay.repaint();
 		}
 	}
 
-	private void onWindowClosing()
-	{
-		log.trace( "Closing application..." );
+	private void onWindowClosing() {
+		log.trace("Closing application...");
 
 		// Save the current configuration on application exit.
-		context.getConfig().to( new File( HVConfig.FILE_PATH ) );
+		context.getConfig().to(new File(HVConfig.FILE_PATH));
 
 		context.getStatisticsFrame().dispose();
 		context.getInstanceFrame().dispose();
@@ -606,23 +547,20 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	}
 
 	@Override
-	public void actionPerformed( ActionEvent e )
-	{
+	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 
-		if ( source instanceof AbstractButton ) {
-			AbstractButton btn = (AbstractButton)source;
+		if (source instanceof AbstractButton) {
+			AbstractButton btn = (AbstractButton) source;
 
-			if ( tabPane.isAncestorOf( btn ) ) {
-				int index = tabPane.indexOfTabComponent( btn.getParent() );
-				if ( index >= 0 ) {
-					btn.removeActionListener( this );
-					closeTab( index );
+			if (tabPane.isAncestorOf(btn)) {
+				int index = tabPane.indexOfTabComponent(btn.getParent());
+				if (index >= 0 && closeTab(index)) {
+					btn.removeActionListener(this);
 				}
 			}
 		}
 	}
-
 
 	/**
 	 * Creates a handler for file drag'n'drop.
@@ -632,36 +570,33 @@ public class VisualizerFrame extends JFrame implements ActionListener
 	 * @param log
 	 *            logger for logging of trace messages
 	 * @param fileExtension
-	 *            file extension that will be accepted for dragging (just the extension, without dot)
+	 *            file extension that will be accepted for dragging (just the
+	 *            extension, without dot)
 	 * @param fileConsumer
 	 *            the method to invoke when a correct file is dragged
 	 * @return the {@link FileDrop} object handling the drag'n'drop
 	 */
-	public static FileDrop createFileDrop( Component c, Logger log, String fileExtension, Consumer<File> fileConsumer )
-	{
-		String fileSuffix = "." + fileExtension.toUpperCase( Locale.ENGLISH );
+	public static FileDrop createFileDrop(Component c, Logger log, String fileExtension, Consumer<File> fileConsumer) {
+		String fileSuffix = "." + fileExtension.toUpperCase(Locale.ENGLISH);
 
-		return new FileDrop(
-			c, new FileDrop.Listener() {
-				public void filesDropped( File[] files )
-				{
-					if ( files.length == 0 ) {
-						log.trace( "Drag and drop: recevied no files." );
-					}
-					else if ( files.length == 1 ) {
-						File file = files[0];
-						if ( file.getName().toUpperCase( Locale.ENGLISH ).endsWith( fileSuffix ) ) {
-							fileConsumer.accept( file );
-						}
-						else {
-							log.trace( "Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring." );
-						}
+		return new FileDrop(c, new FileDrop.Listener() {
+			public void filesDropped(File[] files) {
+				if (files.length == 0) {
+					log.trace("Drag and drop: recevied no files.");
+				}
+				else if (files.length == 1) {
+					File file = files[0];
+					if (file.getName().toUpperCase(Locale.ENGLISH).endsWith(fileSuffix)) {
+						fileConsumer.accept(file);
 					}
 					else {
-						log.trace( "Drag and drop: received multiple files, ignoring." );
+						log.trace("Drag and drop: recevied file is not a " + fileSuffix + " file, ignoring.");
 					}
 				}
+				else {
+					log.trace("Drag and drop: received multiple files, ignoring.");
+				}
 			}
-		);
+		});
 	}
 }

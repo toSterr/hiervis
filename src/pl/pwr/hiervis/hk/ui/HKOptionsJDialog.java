@@ -1,12 +1,11 @@
 package pl.pwr.hiervis.hk.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.Window;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -19,31 +18,39 @@ import pl.pwr.hiervis.hk.HKPlusPlusWrapper;
 import pl.pwr.hiervis.util.SwingUIUtils;
 import pl.pwr.hiervis.util.ui.GridBagConstraintsBuilder;
 
-@SuppressWarnings("serial")
-public class HKOptionsFrame extends JFrame {
-	private static final Logger logHK = LogManager.getLogger(HKOptionsFrame.class);
+public class HKOptionsJDialog extends JDialog {
+	private static final Logger logHK = LogManager.getLogger(HKOptionsJDialog.class);
 
 	private HVContext context;
 	private Node node;
+	private static final long serialVersionUID = -621178124268390305L;
 
-	public HKOptionsFrame(HVContext context, Window frame, Node node, String subtitle) {
-		super("HK++: " + node.getId() + (subtitle == null ? "" : (" [ " + subtitle + " ]")));
+	public HKOptionsJDialog(HVContext context, Window frame, Node node, String subtitle) {
+
+		String title = "HK++: " + node.getId() + (subtitle == null ? "" : (" [ " + subtitle + " ]"));
+
+		setTitle(title);
 
 		this.context = context;
 		this.node = node;
 
 		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-		setMinimumSize(new Dimension(400, 200));
-		setSize(400, 500);
+		setSize(600, 500);
 
 		createGUI();
 
 		SwingUIUtils.addCloseCallback(frame, this);
 		SwingUIUtils.installEscapeCloseOperation(this);
+		setModal(true);
+		pack();
+		setMinimumSize(getSize());
 	}
 
-	// ----------------------------------------------------------------------------------------
-	// GUI creation methods
+	public void showDialog(int x, int y) {
+		setVisible(true);
+
+		setLocation(x, y);
+	}
 
 	private void createGUI() {
 		GridBagConstraintsBuilder builder = new GridBagConstraintsBuilder();
@@ -88,5 +95,7 @@ public class HKOptionsFrame extends JFrame {
 			currentWrapper.subprocessAborted.addListener(e -> btnGenerate.setEnabled(true));
 			currentWrapper.subprocessFinished.addListener(e -> btnGenerate.setEnabled(true));
 		}
+
 	}
+
 }

@@ -31,5 +31,8 @@
 	<classpathentry kind="lib" path="lib/equation-0.26.jar"/>
 	<classpathentry kind="lib" path="lib/native_system-java-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/tsne.jar"/>
+	<classpathentry kind="lib" path="jgoodies-forms-1.8.0.jar" sourcepath="jgoodies-forms-1.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-common-1.8.1.jar"/>
+	<classpathentry kind="lib" path="lib/jgoodies-forms-1.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

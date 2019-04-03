@@ -85,12 +85,14 @@ public class HKPlusPlusWrapper {
 	 *            max dendrogram height
 	 * @param maxNodeCount
 	 *            maximum number of created nodes
+	 * @param verbose
+	 *            Log process
 	 * @throws IOException
 	 *             if an I/O error occurs while starting the subprocess
 	 */
 	public void start(Window owner, boolean trueClassAttribute, boolean instanceNames, boolean diagonalMatrix,
 			boolean disableStaticCenter, boolean generateImages, int epsilon, int littleValue, int clusters,
-			int iterations, int repeats, int dendrogramSize, int maxNodeCount) throws IOException {
+			int iterations, int repeats, int dendrogramSize, int maxNodeCount, boolean verbose) throws IOException {
 		hkOutDir.mkdirs();
 
 		// Clear the output dir so's not to litter
@@ -100,8 +102,8 @@ public class HKPlusPlusWrapper {
 		// files in one place
 		process = new ProcessBuilder(
 				buildArgsList(trueClassAttribute, instanceNames, diagonalMatrix, disableStaticCenter, generateImages,
-						epsilon, littleValue, clusters, iterations, repeats, dendrogramSize, maxNodeCount))
-								.redirectErrorStream(true).directory(hkOutDir).start();
+						epsilon, littleValue, clusters, iterations, repeats, dendrogramSize, maxNodeCount, verbose))
+								.redirectErrorStream(true).directory(hkOutDir).inheritIO().start();
 
 		// Create a separate thread to wait for HK to terminate
 		Thread subprocessObserver = new Thread(() -> {
@@ -260,11 +262,13 @@ public class HKPlusPlusWrapper {
 	 *            max dendrogram height
 	 * @param maxNodeCount
 	 *            maximum number of created nodes
+	 * @param verbose
+	 *            log progres
 	 * @return list of arguments passed to ProcessBuilder to create the subprocess
 	 */
 	private List<String> buildArgsList(boolean trueClassAttribute, boolean instanceNames, boolean diagonalMatrix,
 			boolean disableStaticCenter, boolean generateImages, int epsilon, int littleValue, int clusters,
-			int iterations, int repeats, int dendrogramSize, int maxNodeCount) {
+			int iterations, int repeats, int dendrogramSize, int maxNodeCount, boolean verbose) {
 		List<String> args = new ArrayList<>();
 
 		args.add("java");
@@ -276,7 +280,6 @@ public class HKPlusPlusWrapper {
 		// Hardcode several parameters.
 		args.add("-lgmm");
 
-		args.add("-v"); // verbose mode
 		args.add("-cf");
 		args.add("1.0");
 		args.add("-rf");
@@ -294,6 +297,9 @@ public class HKPlusPlusWrapper {
 		if (generateImages) {
 			args.add("-gi");
 			args.add("800");
+		}
+		if (verbose) {
+			args.add("-v"); // verbose mode
 		}
 
 		args.add("-e");

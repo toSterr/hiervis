@@ -2,6 +2,7 @@ package pl.pwr.hiervis.dimensionReduction.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -14,7 +15,6 @@ import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
@@ -62,7 +62,7 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 	private DimensionReductionRunnerManager dimensionReductionRunnerManager;
 	private Component horizontalStrut_1;
 	private JButton btnStop;
-	private JLabel loadingInfo;
+	private Container instanceContainer;
 
 	/**
 	 * Launch the application.
@@ -153,15 +153,11 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 		loadingIcon.hideIcon();
 		btnStop.setVisible(false);
 
-		loadingInfo = new JLabel("<html>           Dimension Reduction <br> computering task started");
-		loadingInfo.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		loadingInfo.setHorizontalAlignment(SwingConstants.CENTER);
-		loadingInfo.setVisible(false);
+		instanceContainer = this.context.getInstanceFrame().getContentPane();
 
-		contentPane.add(loadingInfo);
 		contentPane.add(loadingIcon);
+		contentPane.add(instanceContainer, BorderLayout.CENTER);
 
-		contentPane.add(this.context.getInstanceFrame().getContentPane(), BorderLayout.CENTER);
 		forceBtn.addActionListener(this::forceReductionSelect);
 
 		getContentPane().addComponentListener(new ComponentListener() {
@@ -212,7 +208,6 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 			btnStop.setVisible(false);
 			afterSelection(index, true);
 			loadingIcon.hideIcon();
-			loadingInfo.setVisible(false);
 		}
 		else if (context.getDimensionReductionMenager().isInQueue(context.getHierarchy(), index - 1)) {
 			ifReductonCalculating(index);
@@ -293,7 +288,6 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 		if (comboBox.getSelectedIndex() - 1 == context.getDimensionReductionMenager()
 				.getIndex(reduction.dimensionReduction)) {
 			loadingIcon.hideIcon();
-			loadingInfo.setVisible(false);
 			btnStop.setVisible(false);
 		}
 		if (reduction.outputHierarchy != null) {
@@ -351,8 +345,8 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 		double y = component.getY();
 		double width = component.getWidth();
 		double height = component.getHeight();
-		double x1 = getContentPane().getComponent(3).getX();
-		double y1 = getContentPane().getComponent(3).getY();
+		double x1 = instanceContainer.getX();
+		double y1 = instanceContainer.getY();
 		double posX = 0;
 		double posY = 0;
 		if (width < 210) {
@@ -369,8 +363,6 @@ public class DimensionReductionWrapInstanceVisualizationsFrame extends JFrame {
 		}
 
 		loadingIcon.showIcon((int) (posX), (int) (posY));
-		loadingInfo.setVisible(true);
-		loadingInfo.setLocation(100, 100);
 		btnStop.setVisible(true);
 	}
 }
