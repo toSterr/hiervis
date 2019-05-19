@@ -1,0 +1,5 @@
+Dataset;Num. of Clusters;Num. of Alg. Iterations (n);Num. of Alg. Repeats (r);Max Dendrogram Size (s);Epsilon;Little Value;Resp. Scal. Fact. (rf);Covar. Scal. Fact. (cf);Clusterisation Method;Output;Dimension File;Verbose;Use static center;Adapt. Static Cen. Cov. Matrix;Scalling Static Cen. Cov. Matrix;Scalling Static Cen. Resp. Value;Diagonal matrix;Reestimate clusters
+C:\Users\JC-pc\Documents\GitHub\hiervis\.\hk\in.csv;2;10;10;2;1.0E-10;1.0E-5;1.0;1.0;LOG_GMM;C:\Users\JC-pc\Documents\GitHub\hiervis\.\hk\out;null;false;true;false;false;false;true;false
+Clust. Level;Data Log. Likelihood;Flat FMeasure;Incremental hierarch. FMeasure
+0;1970.9397235318079;NaN;NaN
+1;1985.0639230454578;NaN;NaN

@@ -63,6 +63,6 @@
 		</jar>
 
 		<!-- Clean up the bin foler so's not to litter -->
-		<delete dir="bin" />
+		<!--<delete dir="bin" /> -->
 	</target>
 </project>

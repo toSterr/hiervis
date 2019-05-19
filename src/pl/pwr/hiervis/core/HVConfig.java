@@ -24,22 +24,19 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-
 /**
- * Class storing the configuration of the visualizer at runtime
- * for easy access.
+ * Class storing the configuration of the visualizer at runtime for easy access.
  * 
  * @author Tomasz Bachmiński
  *
  */
-public class HVConfig
-{
+public class HVConfig {
 	/**
 	 * Default path to the config file
 	 */
 	public static final String FILE_PATH = "./config.json";
 
-	private static final Logger log = LogManager.getLogger( HVConfig.class );
+	private static final Logger log = LogManager.getLogger(HVConfig.class);
 
 	@SerializableField
 	private Color currentGroupColor;
@@ -96,13 +93,13 @@ public class HVConfig
 	private boolean hkNoStaticCenter;
 	@SerializableField
 	private boolean hkGenerateImages;
-
+	@SerializableField
+	private boolean hkVerbose;
 
 	/**
 	 * Create a new config with default values.
 	 */
-	public HVConfig()
-	{
+	public HVConfig() {
 		// Setup default values.
 		currentGroupColor = Color.red;
 		childGroupColor = Color.green;
@@ -110,7 +107,7 @@ public class HVConfig
 		ancestorGroupColor = Color.blue.brighter();
 		otherGroupColor = Color.lightGray;
 		histogramColor = Color.magenta;
-		backgroundColor = new Color( -1 );
+		backgroundColor = new Color(-1);
 
 		numberOfHistogramBins = 100;
 		pointSize = 3;
@@ -132,6 +129,7 @@ public class HVConfig
 		hkWithDiagonalMatrix = true;
 		hkNoStaticCenter = false;
 		hkGenerateImages = false;
+		hkVerbose = false;
 	}
 
 	/**
@@ -141,24 +139,24 @@ public class HVConfig
 	 *            config to copy values from
 	 * @return the new, copied config (shallow copy)
 	 */
-	public static HVConfig from( HVConfig source )
-	{
-		if ( source == null ) {
-			throw new IllegalArgumentException( "Source config must not be null!" );
+	public static HVConfig from(HVConfig source) {
+		if (source == null) {
+			throw new IllegalArgumentException("Source config must not be null!");
 		}
 
 		HVConfig clone = new HVConfig();
 
 		try {
-			for ( Field field : HVConfig.class.getDeclaredFields() ) {
-				if ( isValidField( field ) ) {
-					// We're setting corresponding fields, so there's no need to use HVConfig.setField().
-					field.set( clone, field.get( source ) );
+			for (Field field : HVConfig.class.getDeclaredFields()) {
+				if (isValidField(field)) {
+					// We're setting corresponding fields, so there's no need to use
+					// HVConfig.setField().
+					field.set(clone, field.get(source));
 				}
 			}
 		}
-		catch ( IllegalArgumentException | IllegalAccessException e ) {
-			log.error( "Error while processing config fields: ", e );
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error("Error while processing config fields: ", e);
 		}
 
 		return clone;
@@ -175,27 +173,25 @@ public class HVConfig
 	 * @throws JsonProcessingException
 	 *             if an error occurred while processing the json text
 	 */
-	public static HVConfig from( File file )
-		throws IOException
-	{
+	public static HVConfig from(File file) throws IOException {
 		HVConfig config = new HVConfig();
 
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure( JsonParser.Feature.ALLOW_COMMENTS, true );
-		mapper.configure( JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true );
+		mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
-		JsonNode rootNode = mapper.readTree( file );
+		JsonNode rootNode = mapper.readTree(file);
 
 		try {
-			for ( Field field : HVConfig.class.getDeclaredFields() ) {
-				JsonNode node = rootNode.get( field.getName() );
-				if ( node != null && node instanceof NullNode == false && isValidField( field ) ) {
-					config.setField( field, node );
+			for (Field field : HVConfig.class.getDeclaredFields()) {
+				JsonNode node = rootNode.get(field.getName());
+				if (node != null && node instanceof NullNode == false && isValidField(field)) {
+					config.setField(field, node);
 				}
 			}
 		}
-		catch ( IllegalArgumentException | IllegalAccessException e ) {
-			log.error( "Error while processing config fields: ", e );
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error("Error while processing config fields: ", e);
 		}
 
 		return config;
@@ -206,44 +202,43 @@ public class HVConfig
 	 * 
 	 * @see HVConfig#from(HVConfig)
 	 */
-	public HVConfig copy()
-	{
-		return HVConfig.from( this );
+	public HVConfig copy() {
+		return HVConfig.from(this);
 	}
 
 	/**
-	 * Serializes this config object, saving it to the specified file in JSON format.
+	 * Serializes this config object, saving it to the specified file in JSON
+	 * format.
 	 * 
 	 * @param file
 	 *            the file to save the config to
 	 */
-	public void to( File file )
-	{
+	public void to(File file) {
 		ObjectMapper mapper = new ObjectMapper();
-		mapper.configure( JsonParser.Feature.ALLOW_COMMENTS, true );
-		mapper.configure( JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true );
+		mapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+		mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
 		ObjectNode root = mapper.createObjectNode();
 
 		try {
-			JsonNodeFactory f = JsonNodeFactory.withExactBigDecimals( false );
+			JsonNodeFactory f = JsonNodeFactory.withExactBigDecimals(false);
 
-			for ( Field field : HVConfig.class.getDeclaredFields() ) {
-				if ( isValidField( field ) ) {
-					root.set( field.getName(), serializeField( f, field ) );
+			for (Field field : HVConfig.class.getDeclaredFields()) {
+				if (isValidField(field)) {
+					root.set(field.getName(), serializeField(f, field));
 				}
 			}
 		}
-		catch ( IllegalArgumentException | IllegalAccessException e ) {
-			log.error( "Error while processing config fields: ", e );
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error("Error while processing config fields: ", e);
 		}
 
 		try {
 			ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
-			writer.writeValue( file, root );
+			writer.writeValue(file, root);
 		}
-		catch ( Exception e ) {
-			log.error( "Error while writing json data to file: ", e );
+		catch (Exception e) {
+			log.error("Error while writing json data to file: ", e);
 		}
 	}
 
@@ -254,87 +249,76 @@ public class HVConfig
 	 *            the field to check
 	 * @return true if the field is marked with the SerializableField annnotation.
 	 */
-	private static boolean isValidField( Field f )
-	{
-		return f.isAnnotationPresent( SerializableField.class );
+	private static boolean isValidField(Field f) {
+		return f.isAnnotationPresent(SerializableField.class);
 	}
 
 	/**
-	 * Set the specified field to the value represented by the specified
-	 * JSON node, converted to appropriate type (depending on field type)
+	 * Set the specified field to the value represented by the specified JSON node,
+	 * converted to appropriate type (depending on field type)
 	 * 
 	 * @param f
 	 *            the field to set
 	 * @param node
 	 *            the node containing the value for the field
 	 * @throws IllegalArgumentException
-	 *             if the value represented by the node is not the
-	 *             appropriate type for the field, or no case has
-	 *             been implemented to handle that field's type.
+	 *             if the value represented by the node is not the appropriate type
+	 *             for the field, or no case has been implemented to handle that
+	 *             field's type.
 	 * @throws IllegalAccessException
 	 *             if the specified field cannot be accessed
 	 */
-	private void setField( Field f, JsonNode node )
-		throws IllegalArgumentException, IllegalAccessException
-	{
-		if ( f.getType().equals( boolean.class ) ) {
-			f.set( this, node.asBoolean() );
+	private void setField(Field f, JsonNode node) throws IllegalArgumentException, IllegalAccessException {
+		if (f.getType().equals(boolean.class)) {
+			f.set(this, node.asBoolean());
 		}
-		else if ( f.getType().equals( int.class ) ) {
-			f.set( this, node.asInt() );
+		else if (f.getType().equals(int.class)) {
+			f.set(this, node.asInt());
 		}
-		else if ( f.getType().equals( long.class ) ) {
-			f.set( this, node.asLong() );
+		else if (f.getType().equals(long.class)) {
+			f.set(this, node.asLong());
 		}
-		else if ( f.getType().equals( double.class ) ) {
-			f.set( this, node.asDouble() );
+		else if (f.getType().equals(double.class)) {
+			f.set(this, node.asDouble());
 		}
-		else if ( f.getType().equals( float.class ) ) {
-			float value = (float)node.asDouble();
-			f.set( this, value );
+		else if (f.getType().equals(float.class)) {
+			float value = (float) node.asDouble();
+			f.set(this, value);
 		}
-		else if ( f.getType().equals( String.class ) ) {
-			f.set( this, node.asText() );
+		else if (f.getType().equals(String.class)) {
+			f.set(this, node.asText());
 		}
-		else if ( f.getType().equals( Path.class ) ) {
-			File value = new File( node.asText() );
-			f.set( this, value.toPath() );
+		else if (f.getType().equals(Path.class)) {
+			File value = new File(node.asText());
+			f.set(this, value.toPath());
 		}
-		else if ( f.getType().equals( Color.class ) ) {
+		else if (f.getType().equals(Color.class)) {
 			String input = node.asText();
 			try {
-				Field cf = Color.class.getDeclaredField( input );
+				Field cf = Color.class.getDeclaredField(input);
 				int m = cf.getModifiers();
 				// Get only publically available static fields, so that we only permit
 				// accessing color constants by name, like 'red'
-				if ( Modifier.isPublic( m ) && Modifier.isStatic( m ) ) {
-					f.set( this, cf.get( null ) );
+				if (Modifier.isPublic(m) && Modifier.isStatic(m)) {
+					f.set(this, cf.get(null));
 				}
 				else {
-					throw new IllegalArgumentException(
-						String.format(
-							"'%s' is not a valid color constant!", input
-						)
-					);
+					throw new IllegalArgumentException(String.format("'%s' is not a valid color constant!", input));
 				}
 			}
-			catch ( Exception e ) {
+			catch (Exception e) {
 				try {
-					Color value = Color.decode( input );
-					f.set( this, value );
+					Color value = Color.decode(input);
+					f.set(this, value);
 				}
-				catch ( NumberFormatException ex ) {
-					log.error( "Error while processing value for a color field: ", e );
+				catch (NumberFormatException ex) {
+					log.error("Error while processing value for a color field: ", e);
 				}
 			}
 		}
 		else {
 			throw new IllegalArgumentException(
-				String.format(
-					"No case defined for field type %s",
-					f.getType().getSimpleName()
-				)
-			);
+					String.format("No case defined for field type %s", f.getType().getSimpleName()));
 		}
 	}
 
@@ -348,364 +332,304 @@ public class HVConfig
 	 *            the field to serialize
 	 * @return a JsonNode instance representing the specified field
 	 * @throws IllegalArgumentException
-	 *             if the value represented by the node is not the
-	 *             appropriate type for the field, or no case has
-	 *             been implemented to handle that field's type.
+	 *             if the value represented by the node is not the appropriate type
+	 *             for the field, or no case has been implemented to handle that
+	 *             field's type.
 	 * @throws IllegalAccessException
 	 *             if the specified field cannot be accessed
 	 */
-	private JsonNode serializeField( JsonNodeFactory factory, Field f )
-		throws IllegalArgumentException, IllegalAccessException
-	{
-		if ( f.getType().equals( boolean.class ) ) {
-			return factory.booleanNode( f.getBoolean( this ) );
+	private JsonNode serializeField(JsonNodeFactory factory, Field f)
+			throws IllegalArgumentException, IllegalAccessException {
+		if (f.getType().equals(boolean.class)) {
+			return factory.booleanNode(f.getBoolean(this));
 		}
-		else if ( f.getType().equals( int.class ) ) {
-			return factory.numberNode( f.getInt( this ) );
+		else if (f.getType().equals(int.class)) {
+			return factory.numberNode(f.getInt(this));
 		}
-		else if ( f.getType().equals( long.class ) ) {
-			return factory.numberNode( f.getLong( this ) );
+		else if (f.getType().equals(long.class)) {
+			return factory.numberNode(f.getLong(this));
 		}
-		else if ( f.getType().equals( double.class ) ) {
-			return factory.numberNode( f.getDouble( this ) );
+		else if (f.getType().equals(double.class)) {
+			return factory.numberNode(f.getDouble(this));
 		}
-		else if ( f.getType().equals( float.class ) ) {
-			return factory.numberNode( f.getFloat( this ) );
+		else if (f.getType().equals(float.class)) {
+			return factory.numberNode(f.getFloat(this));
 		}
-		else if ( f.getType().equals( String.class ) ) {
-			return factory.textNode( (String)f.get( this ) );
+		else if (f.getType().equals(String.class)) {
+			return factory.textNode((String) f.get(this));
 		}
-		else if ( f.getType().equals( Path.class ) ) {
-			Path value = (Path)f.get( this );
-			return factory.textNode( value == null ? null : value.toString() );
+		else if (f.getType().equals(Path.class)) {
+			Path value = (Path) f.get(this);
+			return factory.textNode(value == null ? null : value.toString());
 		}
-		else if ( f.getType().equals( Color.class ) ) {
-			Color value = (Color)f.get( this );
-			return factory.textNode(
-				String.format(
-					"#%02X%02X%02X", // Format as uppercase hex string.
-					value.getRed(),
-					value.getGreen(),
-					value.getBlue()
-				)
-			);
+		else if (f.getType().equals(Color.class)) {
+			Color value = (Color) f.get(this);
+			return factory.textNode(String.format("#%02X%02X%02X", // Format as uppercase hex string.
+					value.getRed(), value.getGreen(), value.getBlue()));
 		}
 		else {
 			throw new IllegalArgumentException(
-				String.format(
-					"No case defined for field type %s",
-					f.getType().getSimpleName()
-				)
-			);
+					String.format("No case defined for field type %s", f.getType().getSimpleName()));
 		}
 	}
 
 	/*
-	 * -----------------------------------
-	 * Config values' getters and setters.
+	 * ----------------------------------- Config values' getters and setters.
 	 */
 
-	public Color getCurrentGroupColor()
-	{
+	public Color getCurrentGroupColor() {
 		return currentGroupColor;
 	}
 
-	public void setCurrentLevelColor( Color currentGroupColor )
-	{
+	public void setCurrentLevelColor(Color currentGroupColor) {
 		this.currentGroupColor = currentGroupColor;
 	}
 
-	public Color getChildGroupColor()
-	{
+	public Color getChildGroupColor() {
 		return childGroupColor;
 	}
 
-	public void setChildGroupColor( Color childGroupsColor )
-	{
+	public void setChildGroupColor(Color childGroupsColor) {
 		this.childGroupColor = childGroupsColor;
 	}
 
-	public Color getParentGroupColor()
-	{
+	public Color getParentGroupColor() {
 		return parentGroupColor;
 	}
 
-	public void setParentGroupColor( Color parentGroupsColor )
-	{
+	public void setParentGroupColor(Color parentGroupsColor) {
 		this.parentGroupColor = parentGroupsColor;
 	}
 
-	public Color getOtherGroupColor()
-	{
+	public Color getOtherGroupColor() {
 		return otherGroupColor;
 	}
 
-	public void setOtherGroupColor( Color otherGroupsColor )
-	{
+	public void setOtherGroupColor(Color otherGroupsColor) {
 		this.otherGroupColor = otherGroupsColor;
 	}
 
-	public Color getAncestorGroupColor()
-	{
+	public Color getAncestorGroupColor() {
 		return ancestorGroupColor;
 	}
 
-	public void setAncestorGroupColor( Color ancestorColor )
-	{
+	public void setAncestorGroupColor(Color ancestorColor) {
 		this.ancestorGroupColor = ancestorColor;
 	}
 
-	public Color getBackgroundColor()
-	{
+	public Color getBackgroundColor() {
 		return backgroundColor;
 	}
 
-	public void setBackgroundColor( Color backgroudColor )
-	{
+	public void setBackgroundColor(Color backgroudColor) {
 		this.backgroundColor = backgroudColor;
 	}
 
-	public Color getHistogramColor()
-	{
+	public Color getHistogramColor() {
 		return histogramColor;
 	}
 
-	public void setHistogramColor( Color histogramColor )
-	{
+	public void setHistogramColor(Color histogramColor) {
 		this.histogramColor = histogramColor;
 	}
 
-	public int getPointSize()
-	{
+	public int getPointSize() {
 		return pointSize;
 	}
 
-	public void setPointSize( int pointSize )
-	{
+	public void setPointSize(int pointSize) {
 		this.pointSize = pointSize;
 	}
 
-	public void setNumberOfHistogramBins( int numberOfHistogramBins )
-	{
+	public void setNumberOfHistogramBins(int numberOfHistogramBins) {
 		this.numberOfHistogramBins = numberOfHistogramBins;
 	}
 
-	public int getNumberOfHistogramBins()
-	{
+	public int getNumberOfHistogramBins() {
 		return numberOfHistogramBins;
 	}
 
-	public int getDoubleFormatPrecision()
-	{
+	public int getDoubleFormatPrecision() {
 		return doubleFormatPrecision;
 	}
 
-	public void setDoubleFormatPrecision( int doubleFormatPrecision )
-	{
+	public void setDoubleFormatPrecision(int doubleFormatPrecision) {
 		this.doubleFormatPrecision = doubleFormatPrecision;
 	}
 
-	public boolean isMeasuresUseSubtree()
-	{
+	public boolean isMeasuresUseSubtree() {
 		return measuresUseSubtree;
 	}
 
-	public void setMeasuresUseSubtree( boolean measuresUseSubtree )
-	{
+	public void setMeasuresUseSubtree(boolean measuresUseSubtree) {
 		this.measuresUseSubtree = measuresUseSubtree;
 	}
 
-	public void setPreferredLookAndFeel( String lookAndFeel )
-	{
+	public void setPreferredLookAndFeel(String lookAndFeel) {
 		preferredLookAndFeel = lookAndFeel;
 	}
 
-	public String getPreferredLookAndFeel()
-	{
+	public String getPreferredLookAndFeel() {
 		return preferredLookAndFeel;
 	}
 
-	public void setStopXfceLafChange( boolean stopLafChange )
-	{
+	public void setStopXfceLafChange(boolean stopLafChange) {
 		this.stopXfceLafChange = stopLafChange;
 	}
 
-	public boolean isStopXfceLafChange()
-	{
+	public boolean isStopXfceLafChange() {
 		return this.stopXfceLafChange;
 	}
 
 	/*
-	 * -----------------------------------
-	 * HK++ config's getters and setters.
+	 * ----------------------------------- HK++ config's getters and setters.
 	 */
 
-	public int getHkClusters()
-	{
+	public int getHkClusters() {
 		return hkClusters;
 	}
 
-	public void setHkClusters( int hkClusters )
-	{
+	public void setHkClusters(int hkClusters) {
 		this.hkClusters = hkClusters;
 	}
 
-	public int getHkIterations()
-	{
+	public int getHkIterations() {
 		return hkIterations;
 	}
 
-	public void setHkIterations( int hkIterations )
-	{
+	public void setHkIterations(int hkIterations) {
 		this.hkIterations = hkIterations;
 	}
 
-	public int getHkRepetitions()
-	{
+	public int getHkRepetitions() {
 		return hkRepetitions;
 	}
 
-	public void setHkRepetitions( int hkRepetitions )
-	{
+	public void setHkRepetitions(int hkRepetitions) {
 		this.hkRepetitions = hkRepetitions;
 	}
 
-	public int getHkDendrogramHeight()
-	{
+	public int getHkDendrogramHeight() {
 		return hkDendrogramHeight;
 	}
 
-	public void setHkDendrogramHeight( int hkDendrogramHeight )
-	{
+	public void setHkDendrogramHeight(int hkDendrogramHeight) {
 		this.hkDendrogramHeight = hkDendrogramHeight;
 	}
 
-	public int getHkMaxNodes()
-	{
+	public int getHkMaxNodes() {
 		return hkMaxNodes;
 	}
 
-	public void setHkMaxNodes( int hkMaxNodes )
-	{
+	public void setHkMaxNodes(int hkMaxNodes) {
 		this.hkMaxNodes = hkMaxNodes;
 	}
 
-	public int getHkEpsilon()
-	{
+	public int getHkEpsilon() {
 		return hkEpsilon;
 	}
 
-	public void setHkEpsilon( int hkEpsilon )
-	{
+	public void setHkEpsilon(int hkEpsilon) {
 		this.hkEpsilon = hkEpsilon;
 	}
 
-	public int getHkLittleValue()
-	{
+	public int getHkLittleValue() {
 		return hkLittleValue;
 	}
 
-	public void setHkLittleValue( int hkLittleValue )
-	{
+	public void setHkLittleValue(int hkLittleValue) {
 		this.hkLittleValue = hkLittleValue;
 	}
 
-	public boolean isHkWithTrueClass()
-	{
+	public boolean isHkWithTrueClass() {
 		return hkWithTrueClass;
 	}
 
-	public void setHkWithTrueClass( boolean hkWithTrueClass )
-	{
+	public void setHkWithTrueClass(boolean hkWithTrueClass) {
 		this.hkWithTrueClass = hkWithTrueClass;
 	}
 
-	public boolean isHkWithInstanceNames()
-	{
+	public boolean isHkWithInstanceNames() {
 		return hkWithInstanceNames;
 	}
 
-	public void setHkWithInstanceNames( boolean hkWithInstanceNames )
-	{
+	public void setHkWithInstanceNames(boolean hkWithInstanceNames) {
 		this.hkWithInstanceNames = hkWithInstanceNames;
 	}
 
-	public boolean isHkWithDiagonalMatrix()
-	{
+	public boolean isHkWithDiagonalMatrix() {
 		return hkWithDiagonalMatrix;
 	}
 
-	public void setHkWithDiagonalMatrix( boolean hkWithDiagonalMatrix )
-	{
+	public void setHkWithDiagonalMatrix(boolean hkWithDiagonalMatrix) {
 		this.hkWithDiagonalMatrix = hkWithDiagonalMatrix;
 	}
 
-	public boolean isHkNoStaticCenter()
-	{
+	public boolean isHkNoStaticCenter() {
 		return hkNoStaticCenter;
 	}
 
-	public void setHkNoStaticCenter( boolean hkNoStaticCenter )
-	{
+	public void setHkNoStaticCenter(boolean hkNoStaticCenter) {
 		this.hkNoStaticCenter = hkNoStaticCenter;
 	}
 
-	public boolean isHkGenerateImages()
-	{
+	public boolean isHkGenerateImages() {
 		return hkGenerateImages;
 	}
 
-	public void setHkGenerateImages( boolean hkGenerateImages )
-	{
+	public void setHkGenerateImages(boolean hkGenerateImages) {
 		this.hkGenerateImages = hkGenerateImages;
 	}
 
+	public boolean isHkVerbose() {
+		return hkVerbose;
+	}
+
+	public void setHkVerbose(boolean hkVerbose) {
+		this.hkVerbose = hkVerbose;
+	}
+
 	/*
-	 * ----------------------
-	 * Miscellaneous methods.
+	 * ---------------------- Miscellaneous methods.
 	 */
 
 	@Override
-	public boolean equals( Object o )
-	{
-		if ( o == null )
+	public boolean equals(Object o) {
+		if (o == null)
 			return false;
-		if ( o instanceof HVConfig == false )
+		if (o instanceof HVConfig == false)
 			return false;
-		return equals( (HVConfig)o );
+		return equals((HVConfig) o);
 	}
 
-	public boolean equals( HVConfig o )
-	{
+	public boolean equals(HVConfig o) {
 		try {
-			for ( Field field : HVConfig.class.getDeclaredFields() ) {
-				if ( isValidField( field ) ) {
-					Object lv = field.get( this );
-					Object rv = field.get( o );
+			for (Field field : HVConfig.class.getDeclaredFields()) {
+				if (isValidField(field)) {
+					Object lv = field.get(this);
+					Object rv = field.get(o);
 
-					if ( !Objects.equals( lv, rv ) )
+					if (!Objects.equals(lv, rv))
 						return false;
 				}
 			}
 		}
-		catch ( IllegalArgumentException | IllegalAccessException e ) {
-			log.error( "Error while processing config fields: ", e );
+		catch (IllegalArgumentException | IllegalAccessException e) {
+			log.error("Error while processing config fields: ", e);
 		}
 
 		return true;
 	}
 
-
 	/**
-	 * Marker annotation used to distinguish fields that are meant to be
-	 * serialized into the config file.
+	 * Marker annotation used to distinguish fields that are meant to be serialized
+	 * into the config file.
 	 * 
 	 * @author Tomasz Bachmiński
 	 *
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
-	private @interface SerializableField
-	{
+	private @interface SerializableField {
 	}
 }

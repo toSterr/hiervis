@@ -121,7 +121,7 @@ public final class HierarchyVisualizer
 		}
 
 		try {
-			context.getMeasureManager().loadMeasureFiles( Paths.get( "scripts/measures" ) );
+			context.getMeasureManager().loadMeasureFiles( Paths.get( "skel/scripts/measures" ) );
 		}
 		catch ( IOException e ) {
 			log.error( "IO exception while loading measure files: ", e );

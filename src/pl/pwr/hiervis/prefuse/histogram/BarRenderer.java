@@ -11,6 +11,7 @@ package pl.pwr.hiervis.prefuse.histogram;
 
 import java.awt.Shape;
 import java.awt.geom.Rectangle2D;
+
 import prefuse.Constants;
 import prefuse.render.AbstractShapeRenderer;
 import prefuse.visual.VisualItem;
